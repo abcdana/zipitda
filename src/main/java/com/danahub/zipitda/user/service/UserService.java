@@ -22,4 +22,9 @@ public class UserService {
     public User saveUser(User user) {
         return userRepository.save(user);
     }
+
+    public boolean isNicknameAvailable(String nickname) {
+        return !userRepository.existsByNickname(nickname); // 존재하지 않으면 사용 가능
+    }
+
 }
