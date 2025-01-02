@@ -13,8 +13,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users").permitAll() // '/api/users' 경로는 인증 없이 허용
-                        .anyRequest().authenticated() // 그 외의 요청은 인증 필요
+                        .anyRequest().permitAll() // 모든 요청 인증 없이 허용 (TODO:테스트용!!이니 꼭 수정할 것)
                 );
         return http.build();
     }

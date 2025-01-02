@@ -26,4 +26,5 @@ public class UserService {
     public boolean isNicknameAvailable(String nickname) {
         return !userRepository.existsByNickname(nickname); // 존재하지 않으면 사용 가능
     }
+
 }
