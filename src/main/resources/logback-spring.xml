@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 콘솔 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} %-5level [%logger{20}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 파일 (일별 분리) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/application-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory> <!-- 최근 7일 유지 -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%logger{20}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 루트 로거 (기본 로그 레벨: info) -->
+    <root level="info">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+
+    <!-- 패키지별 로그 레벨 설정 -->
+    <logger name="com.danahub" level="debug" /> <!-- 내 코드 디버그용 -->
+    <logger name="org.springframework" level="warn" /> <!-- 스프링 경고만 출력 -->
+</configuration>
