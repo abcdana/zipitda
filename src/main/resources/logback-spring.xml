@@ -26,6 +26,8 @@
     </root>
 
     <!-- 패키지별 로그 레벨 설정 -->
-    <logger name="com.danahub" level="debug" /> <!-- 내 코드 디버그용 -->
+    <logger name="com.danahub" level="info" /> <!-- 내 코드 디버그용 -->
     <logger name="org.springframework" level="warn" /> <!-- 스프링 경고만 출력 -->
+
+    <logger name="org.springframework.boot.autoconfigure" level="warn" />
 </configuration>
