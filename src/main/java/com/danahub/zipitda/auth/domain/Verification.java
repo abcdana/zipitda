@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Verification extends BaseEntity {
 
     @Id
@@ -38,6 +39,4 @@ public class Verification extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime expiredAt; // 만료시간
 
-    public Verification() {
-    }
 }
