@@ -1,32 +1,30 @@
 package com.danahub.zipitda.terms.controller;
 
 import com.danahub.zipitda.terms.domain.Terms;
-import com.danahub.zipitda.terms.domain.TermsId;
 import com.danahub.zipitda.terms.dto.TermsResponseDto;
 import com.danahub.zipitda.terms.service.TermsService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/terms")
 @Slf4j
+@RequiredArgsConstructor
 public class TermsController {
 
     private final TermsService termsService;
 
-    public TermsController(TermsService termsService) {
-        this.termsService = termsService;
-    }
-
     // 약관 리스트 가져오기
     @GetMapping("/list")
     public ResponseEntity<List<TermsResponseDto>> getTermsList() {
-        log.info("/api/terms 요청 수신 - 약관 리스트 조회 시작");
+        log.info("[TermsController] /api/terms 요청 수신 - 약관 리스트 조회 시작");
         List<TermsResponseDto> termsList = termsService.getTermsList();
 
         if (termsList.isEmpty()) {
@@ -41,8 +39,8 @@ public class TermsController {
     // 특정 약관 가져오기 (복합키)
     @GetMapping("/{title}/{version}")
     public ResponseEntity<Terms> getTermsByTitleAndVersion(
-            @RequestParam String title,
-            @RequestParam Integer version) {
+            @PathVariable String title,
+            @PathVariable Integer version) {
         log.info("[TermsController] /api/terms/{}/{} 요청 수신 - 특정 약관 조회 시작", title, version);
         Terms terms = termsService.getTermsByTitleAndVersion(title, version);
 
