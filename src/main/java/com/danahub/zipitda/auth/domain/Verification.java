@@ -13,14 +13,16 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Verification extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id; // PK
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String type; // 인증 유형 (email/sms)
+    private VerificationType type;
 
     private String email; // 인증 email
 
@@ -38,6 +40,4 @@ public class Verification extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime expiredAt; // 만료시간
 
-    public Verification() {
-    }
 }
