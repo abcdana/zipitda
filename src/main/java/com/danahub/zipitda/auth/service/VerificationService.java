@@ -1,6 +1,7 @@
 package com.danahub.zipitda.auth.service;
 
 import com.danahub.zipitda.auth.domain.Verification;
+import com.danahub.zipitda.auth.domain.VerificationType;
 import com.danahub.zipitda.auth.dto.VerificationResponseDto;
 import com.danahub.zipitda.auth.dto.VerificationSendCodeRequestDto;
 import com.danahub.zipitda.auth.dto.VerificationVerifyCodeRequestDto;
@@ -20,72 +21,68 @@ public class VerificationService {
 
     // 인증 코드 발송
     public VerificationResponseDto sendCode(VerificationSendCodeRequestDto request) {
-        validateRequest(request);
+        VerificationType verificationType = request.type();
+        validateRequest(verificationType, request.recipient());
 
         // 인증 코드 생성 및 저장
         String code = generateCode();
         Verification verification = Verification.builder()
-                .type(request.getType())
-                .email("email".equals(request.getType()) ? request.getRecipient() : null)
-                .mobile("sms".equals(request.getType()) ? request.getRecipient() : null)
+                .type(verificationType)
+                .email(verificationType == VerificationType.EMAIL ? request.recipient() : null)
+                .mobile(verificationType == VerificationType.SMS ? request.recipient() : null)
                 .code(code)
-                .retryCount(0) // 명시적으로 설정
+                .retryCount(0)
                 .expiredAt(LocalDateTime.now().plusMinutes(5))
                 .isVerified(false)
                 .build();
 
         verificationRepository.save(verification);
 
-        // DTO 변환 및 반환
-        return VerificationResponseDto.builder()
-                .success(true)
-                .message("인증 코드가 성공적으로 발송되었습니다.")
-                .retryCount(verification.getRetryCount())
-                .expiredAt(verification.getExpiredAt().toString())
-                .build();
+        return new VerificationResponseDto(
+                true,
+                "인증 코드가 성공적으로 발송되었습니다.",
+                verification.getRetryCount(),
+                verification.getExpiredAt().toString()
+        );
     }
 
     // 인증 코드 검증
-
     public VerificationResponseDto verifyCode(VerificationVerifyCodeRequestDto request) {
-        Optional<Verification> optionalVerification;
+        VerificationType verificationType = request.type();
 
-        if ("email".equals(request.getType())) {
-            optionalVerification = verificationRepository.findFirstByTypeAndEmail(request.getType(), request.getRecipient());
-        } else if ("sms".equals(request.getType())) {
-            optionalVerification = verificationRepository.findFirstByTypeAndMobile(request.getType(), request.getRecipient());
-        } else {
-            throw new IllegalArgumentException("잘못된 인증 타입입니다.");
-        }
+        Optional<Verification> optionalVerification =
+                verificationType == VerificationType.EMAIL
+                        ? verificationRepository.findFirstByTypeAndEmail(verificationType, request.recipient())
+                        : verificationRepository.findFirstByTypeAndMobile(verificationType, request.recipient());
 
-        Verification verification = optionalVerification.orElseThrow(() ->
-                new IllegalArgumentException("인증 요청이 존재하지 않습니다.")
+        Verification verification = optionalVerification.orElseThrow(
+                () -> new IllegalArgumentException("인증 요청이 존재하지 않습니다.")
         );
 
         if (verification.getExpiredAt().isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("인증 코드가 만료되었습니다.");
         }
 
-        if (!verification.getCode().equals(request.getCode())) {
+        if (!verification.getCode().equals(request.code())) {
             throw new IllegalArgumentException("인증 코드가 일치하지 않습니다.");
         }
 
         verification.setIsVerified(true);
         verificationRepository.save(verification);
 
-        return VerificationResponseDto.builder()
-                .success(true)
-                .message("인증이 성공적으로 완료되었습니다.")
-                .retryCount(verification.getRetryCount())
-                .expiredAt(verification.getExpiredAt().toString())
-                .build();
+        return new VerificationResponseDto(
+                true,
+                "인증이 성공적으로 완료되었습니다.",
+                verification.getRetryCount(),
+                verification.getExpiredAt().toString()
+        );
     }
 
-    // 요청 유효성 검증
-    private void validateRequest(VerificationSendCodeRequestDto request) {
-        if ("email".equals(request.getType()) && !isValidEmail(request.getRecipient())) {
+    // 요청 유효성 검증 (VerificationType 사용)
+    private void validateRequest(VerificationType type, String recipient) {
+        if (type == VerificationType.EMAIL && !isValidEmail(recipient)) {
             throw new IllegalArgumentException("유효하지 않은 이메일 형식입니다.");
-        } else if ("sms".equals(request.getType()) && !isValidPhoneNumber(request.getRecipient())) {
+        } else if (type == VerificationType.SMS && !isValidPhoneNumber(recipient)) {
             throw new IllegalArgumentException("유효하지 않은 전화번호 형식입니다.");
         }
     }

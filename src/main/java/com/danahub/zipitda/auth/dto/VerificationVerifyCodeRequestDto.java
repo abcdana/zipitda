@@ -1,7 +1,9 @@
 package com.danahub.zipitda.auth.dto;
 
+import com.danahub.zipitda.auth.domain.VerificationType;
+
 public record VerificationVerifyCodeRequestDto(
-        String type,
+        VerificationType type,
         String recipient,
         String code
 ) { }
