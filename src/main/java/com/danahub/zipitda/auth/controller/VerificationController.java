@@ -18,19 +18,19 @@ public class VerificationController {
 
     // 인증 코드 발송 API
     @PostMapping("/send-code")
-    public ResponseEntity<CommonResponse<VerificationResponseDto>> sendVerificationCode(
+    public CommonResponse<VerificationResponseDto> sendVerificationCode(
             @RequestBody VerificationSendCodeRequestDto request) {
 
         VerificationResponseDto response = verificationService.sendCode(request);
-        return ResponseEntity.ok(CommonResponse.success(response));
+        return CommonResponse.success(response);
     }
 
     // 인증 코드 검증 API
     @PostMapping("/verify-code")
-    public ResponseEntity<CommonResponse<VerificationResponseDto>> verifyCode(
+    public CommonResponse<VerificationResponseDto> verifyCode(
             @RequestBody VerificationVerifyCodeRequestDto request) {
 
         VerificationResponseDto response = verificationService.verifyCode(request);
-        return ResponseEntity.ok(CommonResponse.success(response));
+        return CommonResponse.success(response);
     }
 }
