@@ -35,6 +35,13 @@ dependencies {
 	// Database
 	implementation 'mysql:mysql-connector-java:8.0.32'  // MySQL Connector (버전 명시)
 
+	// Spring Boot Mail (이메일 전송)
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// Thymeleaf (이메일 템플릿 엔진)
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.thymeleaf:thymeleaf-spring6'
+
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
