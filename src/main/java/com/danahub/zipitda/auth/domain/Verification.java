@@ -32,10 +32,10 @@ public class Verification extends BaseEntity {
     private String code; // 인증 코드
 
     @Column(nullable = false)
-    private Boolean isVerified = false; // 인증 완료 여부
+    private Boolean isVerified; // 인증 완료 여부
 
     @Column(nullable = false)
-    private Integer retryCount = 0; // 재시도 횟수
+    private Integer retryCount; // 재시도 횟수
 
     @Column(nullable = false)
     private LocalDateTime expiredAt; // 만료시간
