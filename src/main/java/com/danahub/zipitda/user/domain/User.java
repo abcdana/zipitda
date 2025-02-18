@@ -28,7 +28,7 @@ public class User {
 
     private String nickname; // 닉네임 (중복 불가)
     private String profileImage; // 프로필 이미지
-    private Boolean isActive; // 활성 사용자 (true: 활성, false: 비활성)
+    private String isActive; // 활성 사용자 (true: 활성, false: 비활성)
 
     @Column(nullable = false)
     private String role; // 역할 (USER/ADMIN/SELLER/EXPERT)

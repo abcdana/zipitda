@@ -6,9 +6,10 @@ import com.danahub.zipitda.auth.dto.VerificationResponseDto;
 import com.danahub.zipitda.auth.dto.VerificationSendCodeRequestDto;
 import com.danahub.zipitda.auth.dto.VerificationVerifyCodeRequestDto;
 import com.danahub.zipitda.auth.repository.VerificationRepository;
+import com.danahub.zipitda.common.exception.ZipitdaException;
+import com.danahub.zipitda.common.exception.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
@@ -24,7 +25,6 @@ public class VerificationService {
         VerificationType verificationType = request.type();
         validateRequest(verificationType, request.recipient());
 
-        // 인증 코드 생성 및 저장
         String code = generateCode();
         Verification verification = Verification.builder()
                 .type(verificationType)
@@ -56,15 +56,15 @@ public class VerificationService {
                         : verificationRepository.findFirstByTypeAndMobile(verificationType, request.recipient());
 
         Verification verification = optionalVerification.orElseThrow(
-                () -> new IllegalArgumentException("인증 요청이 존재하지 않습니다.")
+                () -> new ZipitdaException(ErrorType.VERIFICATION_NOT_FOUND)
         );
 
         if (verification.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("인증 코드가 만료되었습니다.");
+            throw new ZipitdaException(ErrorType.VERIFICATION_EXPIRED);
         }
 
         if (!verification.getCode().equals(request.code())) {
-            throw new IllegalArgumentException("인증 코드가 일치하지 않습니다.");
+            throw new ZipitdaException(ErrorType.INVALID_VERIFICATION_CODE);
         }
 
         verification.setIsVerified(true);
@@ -78,12 +78,12 @@ public class VerificationService {
         );
     }
 
-    // 요청 유효성 검증 (VerificationType 사용)
+    // 요청 유효성 검증
     private void validateRequest(VerificationType type, String recipient) {
         if (type == VerificationType.EMAIL && !isValidEmail(recipient)) {
-            throw new IllegalArgumentException("유효하지 않은 이메일 형식입니다.");
+            throw new ZipitdaException(ErrorType.INVALID_EMAIL_FORMAT);
         } else if (type == VerificationType.SMS && !isValidPhoneNumber(recipient)) {
-            throw new IllegalArgumentException("유효하지 않은 전화번호 형식입니다.");
+            throw new ZipitdaException(ErrorType.INVALID_PHONE_NUMBER);
         }
     }
 
