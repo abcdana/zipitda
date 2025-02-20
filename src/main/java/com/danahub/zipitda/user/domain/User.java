@@ -1,8 +1,7 @@
 package com.danahub.zipitda.user.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,12 +12,15 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // user ID
+    private Long id; // user ID
 
     @Column(nullable = false, unique = true)
     private String email; // 이메일 (중복 불가)
@@ -26,9 +28,10 @@ public class User {
     @Column(nullable = false)
     private String password; // 패스워드
 
+    @Column(nullable = false, unique = true)
     private String nickname; // 닉네임 (중복 불가)
     private String profileImage; // 프로필 이미지
-    private String isActive; // 활성 사용자 (true: 활성, false: 비활성)
+    private String isActive; // 활성 사용자 (ACTIVE: 활성, INACTIVE: 비활성)
 
     @Column(nullable = false)
     private String role; // 역할 (USER/ADMIN/SELLER/EXPERT)
