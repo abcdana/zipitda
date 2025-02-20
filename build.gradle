@@ -35,6 +35,9 @@ dependencies {
 	// Database
 	implementation 'mysql:mysql-connector-java:8.0.32'  // MySQL Connector (버전 명시)
 
+	// Spring Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
 	// Spring Boot Mail (이메일 전송)
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
