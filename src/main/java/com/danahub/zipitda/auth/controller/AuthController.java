@@ -1,28 +1,27 @@
 package com.danahub.zipitda.auth.controller;
 
-import com.danahub.zipitda.user.service.UserService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.danahub.zipitda.auth.dto.LoginRequestDto;
+import com.danahub.zipitda.auth.dto.LoginResponseDto;
+import com.danahub.zipitda.auth.service.AuthService;
+import com.danahub.zipitda.common.dto.CommonResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    @PostMapping("/login")
+    public CommonResponse<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
+        return CommonResponse.success(authService.login(request));
     }
 
-    @GetMapping("/check-nickname")
-    public ResponseEntity<Void> checkNickname(@RequestParam String nickname) {
-        if (userService.isNicknameAvailable(nickname)) {
-            return ResponseEntity.ok().build(); // 닉네임 사용 가능 (200 OK)
-        } else {
-            return ResponseEntity.status(409).build(); // 닉네임 중복 (409 Conflict)
-        }
+    @PostMapping("/logout")
+    public CommonResponse<String> logout(@RequestParam String email) {
+        authService.logout(email);
+        return CommonResponse.success("로그아웃 성공");
     }
 }
