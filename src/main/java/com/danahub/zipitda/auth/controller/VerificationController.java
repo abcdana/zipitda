@@ -5,6 +5,7 @@ import com.danahub.zipitda.auth.dto.VerificationSendCodeRequestDto;
 import com.danahub.zipitda.auth.dto.VerificationVerifyCodeRequestDto;
 import com.danahub.zipitda.auth.service.VerificationService;
 import com.danahub.zipitda.common.dto.CommonResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/verification")
 @RequiredArgsConstructor
+@Tag(name = "Verification", description = "인증 API")
 public class VerificationController {
 
     private final VerificationService verificationService;

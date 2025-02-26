@@ -50,9 +50,6 @@ public class UserService {
         // 비밀번호 해싱
         String hashedPassword = passwordEncoder.encode(request.password());
 
-        // 디버깅: 해싱된 비밀번호 출력
-        System.out.println("Hashed Password: " + hashedPassword);
-
         // 회원 정보 저장
         User user = User.builder()
                 .email(request.email())
@@ -63,9 +60,6 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-
-        // 디버깅: 회원가입 완료 메시지
-        System.out.println("회원가입 완료 - Email: " + user.getEmail());
 
         return new UserResponseDto(
                 user.getEmail(),
