@@ -2,6 +2,7 @@ package com.danahub.zipitda.auth.controller;
 
 import com.danahub.zipitda.auth.dto.LoginRequestDto;
 import com.danahub.zipitda.auth.dto.LoginResponseDto;
+import com.danahub.zipitda.auth.dto.LogoutRequestDto;
 import com.danahub.zipitda.auth.service.AuthService;
 import com.danahub.zipitda.common.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +27,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     @Operation(summary = "로그아웃 API", description = "사용자의 인증 세션을 종료하고, 서버에서 리프레시 토큰을 무효화합니다.")
-    public void logout(@RequestParam String email) {
-        authService.logout(email);
+    public CommonResponse<String> logout(@RequestBody LogoutRequestDto request) {
+        authService.logout(request.getEmail());
+        return CommonResponse.success(request.getEmail()+"님이 로그아웃 했습니다.");
     }
 }
