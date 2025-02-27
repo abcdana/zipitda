@@ -150,4 +150,9 @@ public class VerificationService {
     private boolean isValidPhoneNumber(String phoneNumber) {
         return phoneNumber != null && phoneNumber.matches("\\d{10,11}");
     }
+
+    // 인증 완료된 사용자인지 확인
+    public boolean isVerified(String email) {
+        return verificationRepository.existsByEmailAndIsVerifiedIsTrue(email);
+    }
 }

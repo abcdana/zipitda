@@ -40,6 +40,8 @@ public enum ErrorType {
     INVALID_EMAIL_FORMAT(42200, HttpStatus.UNPROCESSABLE_ENTITY, "유효하지 않은 이메일 형식입니다."),
     INVALID_PHONE_NUMBER(42201, HttpStatus.UNPROCESSABLE_ENTITY, "유효하지 않은 전화번호 형식입니다."),
     INVALID_VERIFICATION_CODE(42202, HttpStatus.UNPROCESSABLE_ENTITY, "인증 코드가 일치하지 않습니다."),
+    VERIFICATION_CODE_MISMATCH(42202, HttpStatus.UNPROCESSABLE_ENTITY, "인증 코드가 일치하지 않습니다."),
+    VERIFICATION_NOT_COMPLETED(42205, HttpStatus.UNPROCESSABLE_ENTITY, "인증이 완료되지 않았습니다."),
 
     // 500 INTERNAL SERVER ERROR - 서버 오류
     INTERNAL_SERVER_ERROR(50000, HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다."),

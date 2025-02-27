@@ -3,6 +3,7 @@ package com.danahub.zipitda.auth.controller;
 import com.danahub.zipitda.auth.dto.LoginRequestDto;
 import com.danahub.zipitda.auth.dto.LoginResponseDto;
 import com.danahub.zipitda.auth.dto.LogoutRequestDto;
+import com.danahub.zipitda.auth.dto.PasswordChangeRequestDto;
 import com.danahub.zipitda.auth.service.AuthService;
 import com.danahub.zipitda.common.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,14 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "로그아웃 API", description = "사용자의 인증 세션을 종료하고, 서버에서 리프레시 토큰을 무효화합니다.")
     public CommonResponse<String> logout(@RequestBody LogoutRequestDto request) {
-        authService.logout(request.getEmail());
-        return CommonResponse.success(request.getEmail()+"님이 로그아웃 했습니다.");
+        authService.logout(request.email());
+        return CommonResponse.success(request.email()+"님이 로그아웃 했습니다.");
+    }
+
+    @PutMapping("/changePassword")
+    @Operation(summary = "비밀번호 변경 API", description = "기존 비밀번호를 삭제하고 새 비밀번호를 설정합니다.")
+    public CommonResponse<String> changePassword(@RequestBody PasswordChangeRequestDto request) {
+        authService.changePassword(request.email(), request.newPassword());
+        return CommonResponse.success("비밀번호가 성공적으로 변경되었습니다.");
     }
 }
