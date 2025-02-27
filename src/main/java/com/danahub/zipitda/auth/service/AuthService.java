@@ -23,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final StringRedisTemplate redisTemplate;
+    private final VerificationService verificationService;
 
     private static final String ACCESS_TOKEN_PREFIX = "ACCESS_TOKEN:";
     private static final String REFRESH_TOKEN_PREFIX = "REFRESH_TOKEN:";
@@ -65,5 +66,23 @@ public class AuthService {
         // Redis에 저장된 Access Token과 비교
         String storedAccessToken = redisTemplate.opsForValue().get(ACCESS_TOKEN_PREFIX + email);
         return storedAccessToken != null && storedAccessToken.equals(token);
+    }
+
+
+    @Transactional
+    public void changePassword(String email, String newPassword) {
+
+        // 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
+
+        // 인증된 사용자 여부 확인 - 인증 코드가 검증되었는지 체크
+        if (!verificationService.isVerified(email)) {
+            throw new ZipitdaException(ErrorType.VERIFICATION_NOT_COMPLETED);
+        }
+
+        // 비밀번호 해싱 후 저장
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }

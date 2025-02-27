@@ -31,7 +31,7 @@ public class Verification extends BaseEntity {
     @Column(nullable = false)
     private String code; // 인증 코드
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "is_verified")
     private Boolean isVerified; // 인증 완료 여부
 
     @Column(nullable = false)

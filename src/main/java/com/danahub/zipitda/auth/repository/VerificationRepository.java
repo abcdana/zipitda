@@ -11,4 +11,6 @@ public interface VerificationRepository extends JpaRepository<Verification, Inte
     Optional<Verification> findFirstByTypeAndEmail(VerificationType type, String email);
 
     Optional<Verification> findFirstByTypeAndMobile(VerificationType type, String mobile);
+
+    boolean existsByEmailAndIsVerifiedIsTrue(String email);
 }
