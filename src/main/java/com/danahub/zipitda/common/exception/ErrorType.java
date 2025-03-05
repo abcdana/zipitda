@@ -17,6 +17,7 @@ public enum ErrorType {
     INVALID_CREDENTIALS(40101, HttpStatus.UNAUTHORIZED, "잘못된 인증 정보입니다."),
     TOKEN_EXPIRED(40102, HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
     ACCOUNT_DISABLED(40103, HttpStatus.UNAUTHORIZED, "비활성화된 계정입니다."),
+    INVALID_TOKEN(40104, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 
     // 403 FORBIDDEN - 접근 제한
     ACCESS_DENIED(40300, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),

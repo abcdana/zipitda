@@ -31,6 +31,28 @@
             top: 0;
             z-index: 1000;
         }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+        .nickname {
+            font-weight: bold;
+        }
+        .mypage-btn, .logout-btn {
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-left: 5px;
+            font-weight: bold;
+            color: #007bff;
+        }
         .logo img {
             height: 40px;
         }
@@ -91,7 +113,7 @@
         .banner {
             width: 100%;
             height: 300px;
-            background: url("https://plus.unsplash.com/premium_photo-1676823553207-758c7a66e9bb?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") center/cover no-repeat;
+            background: url("https://images.unsplash.com/photo-1481277542470-605612bd2d61?q=80&w=2906&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") center/cover no-repeat;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -175,9 +197,8 @@
         <input type="text" placeholder="통합검색">
         <button>검색</button>
     </div>
-    <div class="header-buttons">
-        <a href="/social-login/page" class="login-btn">로그인</a>
-        <a href="#" class="signup-btn">회원가입</a>
+    <div class="header-buttons" id="header-buttons">
+        <!-- 여기에 로그인 상태에 따라 버튼이 변경됨 -->
     </div>
 </div>
 
@@ -247,3 +268,58 @@
 
 </body>
 </html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function() {
+        const headerButtons = document.getElementById("header-buttons");
+        const accessToken = localStorage.getItem("accessToken");
+
+        if (accessToken) {
+            try {
+                // 사용자 정보 가져오기
+                const response = await fetch("/api/auth/user-info", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("인증 실패");
+                }
+
+                const userData = await response.json();
+                const profileImg = userData.profileImage || "/images/default-profile.png";
+                const nickname = userData.nickname || "사용자";
+
+                // 로그인한 상태일 때 UI 변경
+                headerButtons.innerHTML = `
+                    <div class="user-info">
+                        <img src="${profileImg}" alt="프로필" class="profile-img">
+                        <span class="nickname">${nickname}</span>
+                        <a href="/mypage" class="mypage-btn">마이페이지</a>
+                        <a href="#" class="logout-btn">로그아웃</a>
+                    </div>
+                `;
+
+                // 로그아웃 기능 추가
+                document.querySelector(".logout-btn").addEventListener("click", function() {
+                    localStorage.removeItem("accessToken"); // 토큰 삭제
+                    window.location.href = "/"; // 홈으로 이동
+                });
+
+            } catch (error) {
+                console.error("사용자 정보를 불러올 수 없습니다:", error);
+                localStorage.removeItem("accessToken"); // 토큰 삭제
+                location.reload(); // 새로고침하여 로그인 버튼 표시
+            }
+        } else {
+            // 로그인 상태가 아닐 때 기본 버튼 표시
+            headerButtons.innerHTML = `
+                <a href="/social-login/page" class="login-btn">로그인</a>
+                <a href="#" class="signup-btn">회원가입</a>
+            `;
+        }
+    });
+</script>
+

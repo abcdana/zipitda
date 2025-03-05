@@ -5,6 +5,7 @@ import com.danahub.zipitda.auth.dto.LoginResponseDto;
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
 import com.danahub.zipitda.user.domain.User;
+import com.danahub.zipitda.user.dto.UserResponseDto;
 import com.danahub.zipitda.user.repository.UserRepository;
 import com.danahub.zipitda.common.util.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,23 @@ public class AuthService {
         redisTemplate.opsForValue().set(REFRESH_TOKEN_PREFIX + user.getEmail(), refreshToken, 7, TimeUnit.DAYS);
 
         return new LoginResponseDto(accessToken, refreshToken);
+    }
+
+    public UserResponseDto getUserInfo(String jwtToken) {
+        // JWT 토큰에서 이메일 추출
+        String email = jwtProvider.getEmailFromToken(jwtToken);
+
+        // 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
+
+        // UserResponseDto 반환
+        return new UserResponseDto(
+                user.getEmail(),
+                user.getNickname(),
+                user.getIsActive(),
+                user.getProfileImage()
+        );
     }
 
     @Transactional

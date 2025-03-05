@@ -6,6 +6,7 @@ import com.danahub.zipitda.auth.dto.LogoutRequestDto;
 import com.danahub.zipitda.auth.dto.PasswordChangeRequestDto;
 import com.danahub.zipitda.auth.service.AuthService;
 import com.danahub.zipitda.common.dto.CommonResponse;
+import com.danahub.zipitda.user.dto.UserResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,13 @@ public class AuthController {
             "JWT 액세스 토큰/리프레시 토큰을 발급하여 로그인합니다.")
     public CommonResponse<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
         return CommonResponse.success(authService.login(request));
+    }
+
+    @GetMapping("/user-info")
+    @Operation(summary = "사용자 정보 조회", description = "현재 로그인한 사용자의 정보를 반환합니다.")
+    public CommonResponse<UserResponseDto> getUserInfo(@RequestHeader("Authorization") String token) {
+        String jwtToken = token.replace("Bearer ", ""); // "Bearer " 제거
+        return CommonResponse.success(authService.getUserInfo(jwtToken));
     }
 
     @PostMapping("/logout")

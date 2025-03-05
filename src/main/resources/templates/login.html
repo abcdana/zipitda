@@ -91,9 +91,9 @@
         <img src="/images/logo_narrow.png" alt="집잇다">
     </div>
 
-    <form action="/api/auth/login" method="POST">
-        <input type="email" name="email" placeholder="이메일" required>
-        <input type="password" name="password" placeholder="비밀번호" required>
+    <form id="loginForm">
+        <input type="email" id="email" name="email" placeholder="이메일" required>
+        <input type="password" id="password" name="password" placeholder="비밀번호" required>
         <button type="submit" class="login-btn">로그인</button>
     </form>
 
@@ -118,3 +118,30 @@
 
 </body>
 </html>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async function (event) {
+        event.preventDefault();  // 기본 form 제출 막기
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: email, password: password })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert("로그인 성공! JWT: " + data.data.accessToken);
+            // 로그인 성공 후, JWT 저장 후 리디렉트 가능
+            localStorage.setItem("accessToken", data.data.accessToken);
+            window.location.href = "/";
+        } else {
+            alert("로그인 실패: " + data.message);
+        }
+    });
+</script>

@@ -1,5 +1,7 @@
 package com.danahub.zipitda.common.util;
 
+import com.danahub.zipitda.common.exception.ErrorType;
+import com.danahub.zipitda.common.exception.ZipitdaException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -7,6 +9,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -40,5 +43,15 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+
+    // JWT에서 이메일 추출
+    public String getEmailFromToken(String token) {
+        try {
+            return parseToken(token).getSubject(); // 토큰의 subject(email) 반환
+        } catch (Exception e) {
+            throw new ZipitdaException(ErrorType.INVALID_TOKEN);
+        }
     }
 }
