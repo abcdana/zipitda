@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>로그인 | 집잇다</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            margin: 0;
+        }
+        .login-container {
+            width: 360px;
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .logo img {
+            height: 60px;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #3DA5F5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .links {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+        .links a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .social-login {
+            margin-top: 20px;
+        }
+        .social-btns {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .social-btns img {
+            height: 35px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .social-btns img:hover {
+            opacity: 0.8;
+        }
+        .sns-text {
+            font-size: 13px;
+            color: #999;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="logo">
+        <img src="/images/logo_narrow.png" alt="집잇다">
+    </div>
+
+    <form action="/api/auth/login" method="POST">
+        <input type="email" name="email" placeholder="이메일" required>
+        <input type="password" name="password" placeholder="비밀번호" required>
+        <button type="submit" class="login-btn">로그인</button>
+    </form>
+
+    <div class="links">
+        <a href="#">비밀번호 재설정</a>
+        <a href="#">회원가입</a>
+    </div>
+
+    <div class="social-login">
+        <p class="sns-text">SNS 계정으로 간편 로그인/회원가입</p>
+        <div class="social-btns">
+            <a th:href="${kakaoLoginUrl}">
+                <img src="/images/kakao_login_medium_narrow.png" alt="카카오 로그인">
+            </a>
+            <a th:href="${naverLoginUrl}">
+                <img src="/images/naver_login_btn.png" alt="네이버 로그인">
+            </a>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
