@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html lang="ko">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>집잇다 - 인테리어 & 라이프스타일</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        /* 헤더 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo img {
+            height: 40px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f1f1f1;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .search-bar input {
+            border: none;
+            background: none;
+            padding: 8px;
+            width: 250px;
+            outline: none;
+        }
+        .search-bar button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .header-buttons a {
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .login-btn {
+            background: #007bff;
+            color: white;
+        }
+        .signup-btn {
+            background: #f1f1f1;
+            color: #333;
+        }
+        /* 네비게이션 */
+        .nav {
+            display: flex;
+            justify-content: center;
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+            margin-top: 70px;
+        }
+        .nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+        /* 메인 배너 */
+        .banner {
+            width: 100%;
+            height: 300px;
+            background: url("https://plus.unsplash.com/premium_photo-1676823553207-758c7a66e9bb?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 26px;
+            font-weight: bold;
+            text-shadow: 1px 1px 10px rgba(0,0,0,0.4);
+        }
+        /* 카테고리 */
+        .category-section {
+            text-align: center;
+            margin: 20px 0 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .category-menu {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .category {
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+        .category {
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+        .category img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+        /* 추천 콘텐츠 */
+        .content {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .content p {
+            color: #999999;
+        }
+        .grid {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0px;
+            flex-wrap: wrap;
+        }
+        .grid img {
+            width: 22%;
+            height: auto;
+            border-radius: 5px;
+        }
+        /* 푸터 */
+        .footer {
+            background: #f1f1f1;
+            color: #555;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<div class="header">
+    <div class="logo">
+        <img src="/images/logo.png" alt="집잇다 로고">
+    </div>
+    <div class="search-bar">
+        <input type="text" placeholder="통합검색">
+        <button>검색</button>
+    </div>
+    <div class="header-buttons">
+        <a href="/social-login/page" class="login-btn">로그인</a>
+        <a href="#" class="signup-btn">회원가입</a>
+    </div>
+</div>
+
+<!-- 네비게이션 -->
+<div class="nav">
+    <a href="#">홈</a>
+    <a href="#">추천</a>
+    <a href="#">커뮤니티</a>
+    <a href="#">스토어</a>
+    <a href="#">3D 인테리어</a>
+    <a href="#">반려동물</a>
+    <a href="#">홈스타일링</a>
+</div>
+
+<!-- 메인 배너 -->
+<div class="banner">
+    당신의 공간을 더욱 특별하게, 집잇다.
+</div>
+
+<!-- 카테고리 -->
+<div class="category-section">카테고리별 상품 찾기</div>
+<div class="category-menu">
+    <div class="category">
+        <img src="https://image.ohousecdn.com/i/bucketplace-v2-development/uploads/category/store_home_categories/165698403420736265.png?w=72" alt="집들이">
+        <div>가구</div>
+    </div>
+    <div class="category">
+        <img src="https://image.ohousecdn.com/i/bucketplace-v2-development/uploads/category/store_home_categories/172474528642703614.png?w=72" alt="패브릭">
+        <div>패브릭</div>
+    </div>
+    <div class="category">
+        <img src="https://image.ohousecdn.com/i/bucketplace-v2-development/uploads/category/store_home_categories/172474529155729560.png?w=72" alt="가전디지털">
+        <div>가전디지털</div>
+    </div>
+    <div class="category">
+        <img src="https://image.ohousecdn.com/i/bucketplace-v2-development/uploads/category/store_home_categories/165443714334272236.png?w=72" alt="주방용품">
+        <div>주방용품</div>
+    </div>
+    <div class="category">
+        <img src="https://image.ohousecdn.com/i/bucketplace-v2-development/uploads/category/store_home_categories/172226725479790506.png?w=72" alt="조명">
+        <div>조명</div>
+    </div>
+</div>
+
+<!-- 추천 콘텐츠 -->
+<div class="content">
+    <h4>이런 사진 찾고 있나요?</h4>
+    <p>좋아하실 만한 인테리어 콘텐츠를 추천해드려요.</p>
+
+    <div class="grid">
+        <img src="https://images.unsplash.com/photo-1600210491369-e753d80a41f3?q=80&w=3174&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="인테리어 1">
+        <img src="https://images.unsplash.com/photo-1631679706909-1844bbd07221?q=80&w=2892&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="인테리어 2">
+        <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="인테리어 3">
+        <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="인테리어 4">
+    </div>
+</div>
+
+<!-- 푸터 -->
+<div class="footer">
+    © 2025 집잇다. All Rights Reserved.
+</div>
+
+</body>
+</html></title>
+</head>
+<body>
+
+</body>
+</html>
