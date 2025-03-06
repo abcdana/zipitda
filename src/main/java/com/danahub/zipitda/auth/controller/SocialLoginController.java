@@ -5,6 +5,9 @@ import com.danahub.zipitda.auth.dto.SocialLoginResponseDto;
 import com.danahub.zipitda.auth.service.SocialLoginService;
 import com.danahub.zipitda.common.dto.CommonResponse;
 import com.danahub.zipitda.user.dto.UserResponseDto;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,13 +16,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
 
 @Controller
 @RequestMapping("/social-login")
 @RequiredArgsConstructor
+@Tag(name = "Social Login", description = "소셜 로그인 API")
 public class SocialLoginController {
 
     private final SocialLoginService socialLoginService;
