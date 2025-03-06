@@ -2,6 +2,7 @@ package com.danahub.zipitda.user.service;
 
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
+import com.danahub.zipitda.user.domain.AuthProvider;
 import com.danahub.zipitda.user.domain.User;
 import com.danahub.zipitda.user.dto.UserRegisterRequestDto;
 import com.danahub.zipitda.user.dto.UserResponseDto;
@@ -57,6 +58,7 @@ public class UserService {
                 .nickname(request.nickname())
                 .role("USER")
                 .isActive("INACTIVE") // 이메일 인증 후 활성화
+                .provider(AuthProvider.LOCAL)
                 .build();
 
         userRepository.save(user);
@@ -64,7 +66,8 @@ public class UserService {
         return new UserResponseDto(
                 user.getEmail(),
                 user.getNickname(),
-                user.getIsActive()
+                user.getIsActive(),
+                user.getProfileImage()
         );
     }
 }
