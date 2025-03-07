@@ -8,6 +8,7 @@ import com.danahub.zipitda.community.dto.PostDetailResponseDto;
 import com.danahub.zipitda.community.dto.PostRequestDto;
 import com.danahub.zipitda.community.dto.PostResponseDto;
 import com.danahub.zipitda.community.repository.PostRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,8 +25,7 @@ public class PostService {
 
     // 게시글 생성
     @Transactional
-    public Long createPost(PostRequestDto requestDto) {
-        validatePostRequest(requestDto);
+    public Long createPost(@Valid PostRequestDto requestDto) {
 
         Post post = Post.builder()
                 .userId(requestDto.userId())
@@ -94,7 +94,7 @@ public class PostService {
     public void deletePost(PostRequestDto requestDto) {
         postRepository.deleteById(requestDto.postId());
     }
-
+/*
     // 게시글 검증
     private void validatePostRequest(PostRequestDto requestDto) {
         if (requestDto.title() == null || requestDto.title().isBlank()) {
@@ -103,5 +103,5 @@ public class PostService {
         if (requestDto.content() == null || requestDto.content().isBlank()) {
             throw new ZipitdaException(ErrorType.MISSING_REQUIRED_VALUE);
         }
-    }
+    }*/
 }

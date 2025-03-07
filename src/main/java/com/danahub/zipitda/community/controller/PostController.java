@@ -1,9 +1,6 @@
 package com.danahub.zipitda.community.controller;
 
 import com.danahub.zipitda.common.dto.CommonResponse;
-import com.danahub.zipitda.common.exception.ErrorType;
-import com.danahub.zipitda.common.exception.ZipitdaException;
-import com.danahub.zipitda.community.domain.Post;
 import com.danahub.zipitda.community.dto.PostDetailResponseDto;
 import com.danahub.zipitda.community.dto.PostRequestDto;
 import com.danahub.zipitda.community.dto.PostResponseDto;
@@ -12,12 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/community/posts")
