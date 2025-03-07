@@ -1,5 +1,6 @@
 package com.danahub.zipitda.community.service;
 
+import com.danahub.zipitda.common.aop.PostAuthorizationCheck;
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
 import com.danahub.zipitda.community.domain.Post;
@@ -15,8 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -26,6 +25,8 @@ public class PostService {
     // 게시글 생성
     @Transactional
     public Long createPost(PostRequestDto requestDto) {
+        validatePostRequest(requestDto);
+
         Post post = Post.builder()
                 .userId(requestDto.userId())
                 .title(requestDto.title())
@@ -77,20 +78,30 @@ public class PostService {
     }
 
     // 게시글 수정
+    @PostAuthorizationCheck
     @Transactional
-    public void updatePost(Long id, PostRequestDto requestDto) {
-        Post post = postRepository.findById(id)
+    public void updatePost(PostRequestDto requestDto) {
+        Post post = postRepository.findById(requestDto.postId())
                 .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND));
+
         post.setTitle(requestDto.title());
         post.setContent(requestDto.content());
     }
 
-    // 게시글 삭제
+    // ✅ 게시글 삭제 (권한 체크는 AOP에서 처리)
+    @PostAuthorizationCheck
     @Transactional
-    public void deletePost(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND);
+    public void deletePost(PostRequestDto requestDto) {
+        postRepository.deleteById(requestDto.postId());
+    }
+
+    // 게시글 검증
+    private void validatePostRequest(PostRequestDto requestDto) {
+        if (requestDto.title() == null || requestDto.title().isBlank()) {
+            throw new ZipitdaException(ErrorType.MISSING_REQUIRED_VALUE);
         }
-        postRepository.deleteById(id);
+        if (requestDto.content() == null || requestDto.content().isBlank()) {
+            throw new ZipitdaException(ErrorType.MISSING_REQUIRED_VALUE);
+        }
     }
 }

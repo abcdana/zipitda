@@ -47,17 +47,17 @@ public class PostController {
         return CommonResponse.success(postService.getAllPosts(pageable, sortBy));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @Operation(summary = "게시글 수정 API", description = "게시글을 수정합니다.")
-    public CommonResponse<Void> updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto) {
-        postService.updatePost(id, requestDto);
+    public CommonResponse<Void> updatePost(@RequestBody PostRequestDto requestDto) {
+        postService.updatePost(requestDto);
         return CommonResponse.success();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
-    public CommonResponse<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    public CommonResponse<Void> deletePost(@RequestBody PostRequestDto requestDto) {
+        postService.deletePost(requestDto);
         return CommonResponse.success();
     }
 }
