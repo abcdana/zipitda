@@ -18,7 +18,18 @@ public class ZipitdaExceptionHandler {
         String log = e.getErrorType().getMessage();
         String parameters = Joiner.on(',').withKeyValueSeparator('=').join(e.getParameters());
         String exceptions = ExceptionUtils.getStackTrace(e);
-        e.getLogConsumer().accept(log + parameters + exceptions);
+        e.getLogConsumer().accept(
+                """
+                ───────────────────────────────
+                       ZipitdaException
+                ───────────────────────────────
+                ErrorType  : %s
+                Parameter  : %s
+                StackTrace :
+                %s
+                ───────────────────────────────
+                """.formatted(log, parameters, exceptions)
+        );
 
         return ResponseEntity
                 .status(e.getErrorType().getHttpStatus())
