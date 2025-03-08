@@ -29,7 +29,7 @@ public class StorageService {
         } catch (Exception e) {
             throw new ZipitdaException(ErrorType.INTERNAL_SERVER_ERROR,
                                         Map.of("fileName", fileName, "originalFileName", file.getOriginalFilename()),
-                                        log -> System.err.println("파일 저장 오류: " + log),
+                                        log -> System.err.println(log),
                                         e);
         }
 
