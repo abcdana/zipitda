@@ -1,5 +1,7 @@
 package com.danahub.zipitda.common.security;
 
+import com.danahub.zipitda.common.exception.ErrorType;
+import com.danahub.zipitda.common.exception.ZipitdaException;
 import com.danahub.zipitda.user.domain.User;
 import com.danahub.zipitda.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                         .password(user.getPassword())
                         .roles("USER")
                         .build())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
+                .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND,
+                                                        Map.of("email", email)));
     }
 }
