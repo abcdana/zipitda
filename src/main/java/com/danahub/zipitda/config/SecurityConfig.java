@@ -23,6 +23,7 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final CustomUserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter; //
 
     @Bean
     public AuthenticationManager authenticationManager() {
@@ -45,7 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login", "/api/users/register").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); //
 
         return http.build();
     }

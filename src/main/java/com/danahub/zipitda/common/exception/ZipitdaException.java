@@ -1,10 +1,12 @@
 package com.danahub.zipitda.common.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Map;
 import java.util.function.Consumer;
 @Getter
+@AllArgsConstructor
 public class ZipitdaException extends RuntimeException {
     private final ErrorType errorType;
     private final Map<String, Object> parameters;
@@ -27,11 +29,11 @@ public class ZipitdaException extends RuntimeException {
         this.exception = null;
     }
 
-
-    public ZipitdaException(ErrorType errorType, Map<String, Object> parameters, Consumer<String> logConsumer, Exception exception) {
+    public ZipitdaException(ErrorType errorType, Consumer<String> logConsumer, Exception e) {
+        super(errorType.getMessage());
         this.errorType = errorType;
-        this.parameters = parameters;
+        this.parameters = null;
         this.logConsumer = logConsumer;
-        this.exception = exception;
+        this.exception = e;
     }
 }
