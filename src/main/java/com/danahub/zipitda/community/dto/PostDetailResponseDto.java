@@ -1,6 +1,7 @@
 package com.danahub.zipitda.community.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PostDetailResponseDto(
         Long id,
@@ -10,5 +11,6 @@ public record PostDetailResponseDto(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         int likeCount,
-        int bookmarkCount
+        int bookmarkCount,
+        List<String> imageUrls
 ) {}

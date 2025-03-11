@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -69,5 +70,11 @@ public class UserService {
                 user.getIsActive(),
                 user.getProfileImage()
         );
+    }
+    public Long findUserIdByEmail(String userEmail) {
+        return userRepository.findByEmail(userEmail)
+                .map(User::getId)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND,
+                        Map.of("userEmail", userEmail)));
     }
 }
