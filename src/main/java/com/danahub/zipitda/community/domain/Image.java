@@ -1,5 +1,6 @@
 package com.danahub.zipitda.community.domain;
 
+import com.danahub.zipitda.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,23 +16,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class Image {
+public class Image extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 이미지 ID
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private TargetType targetType; // POST / PRODUCT / REVIEW 등
 
-    @Column(nullable = false)
     private Long targetId; // 대상 ID
 
     @Column(nullable = false)
     private String imageUrl; // 이미지 URL
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt; // 생성일시
+    public void updateTargetInfo(Long targetId, TargetType targetType) {
+        this.targetId = targetId;
+        this.targetType = targetType;
+    }
 }

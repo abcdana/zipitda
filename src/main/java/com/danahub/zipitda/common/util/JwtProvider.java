@@ -2,56 +2,117 @@ package com.danahub.zipitda.common.util;
 
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class JwtProvider {
 
-    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final UserDetailsService userDetailsService;
     private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30; // 30분
     private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
+    private SecretKey secretKey;
+
+    @Value("${jwt.secret}")
+    public void setSecretKey(String secret) {
+        log.info("JWT SecretKey 설정 완료");
+        this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
+    }
 
     public String generateAccessToken(String email) {
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
-                .signWith(secretKey)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+        log.info("Access Token 생성: {}", token);
+        return token;
     }
 
     public String generateRefreshToken(String email) {
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
-                .signWith(secretKey)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+        log.info("Refresh Token 생성: {}", token);
+        return token;
     }
 
+    /**
+     * JWT 파싱하여 Claims 반환
+     */
     public Claims parseToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            log.info("JWT 파싱 성공: {}", claims);
+            return claims;
+        } catch (ExpiredJwtException e) {
+            throw new ZipitdaException(ErrorType.TOKEN_EXPIRED, Map.of("token", token), log::warn, e);
+        } catch (MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            throw new ZipitdaException(ErrorType.INVALID_TOKEN, Map.of("token", token), log::warn, e);
+        }
     }
 
-
-    // JWT에서 이메일 추출
+    /**
+     * JWT에서 이메일 추출
+     */
     public String getEmailFromToken(String token) {
         try {
-            return parseToken(token).getSubject(); // 토큰의 subject(email) 반환
+            String email = parseToken(token).getSubject();
+            log.info("JWT에서 이메일 추출: {}", email);
+            return email;
         } catch (Exception e) {
-            throw new ZipitdaException(ErrorType.INVALID_TOKEN);
+            throw new ZipitdaException(ErrorType.INVALID_TOKEN, Map.of("token", token), log::warn, e);
+        }
+    }
+
+    /**
+     * JWT 유효성 검사
+     */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            throw new ZipitdaException(ErrorType.TOKEN_EXPIRED, Map.of("만료된 token", token), log::warn, e);
+        } catch (MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            throw new ZipitdaException(ErrorType.TOKEN_EXPIRED, Map.of("유효하지 않은 token", token), log::warn, e);
+        }
+    }
+
+    /**
+     * Spring Security Authentication 객체 생성
+     */
+    public Authentication getAuthentication(String token) {
+        try {
+            String email = getEmailFromToken(token);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            log.info("인증 객체 생성 완료: {}", email);
+            return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        } catch (Exception e) {
+            throw new ZipitdaException(ErrorType.INVALID_TOKEN, log::warn, e);
         }
     }
 }

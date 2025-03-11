@@ -29,7 +29,6 @@ public class AuthService {
     private static final String ACCESS_TOKEN_PREFIX = "ACCESS_TOKEN:";
     private static final String REFRESH_TOKEN_PREFIX = "REFRESH_TOKEN:";
 
-    @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
         // 이메일로 사용자 찾기
         User user = userRepository.findByEmail(request.email())
@@ -55,15 +54,10 @@ public class AuthService {
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
-    public UserResponseDto getUserInfo(String jwtToken) {
-        // JWT 토큰에서 이메일 추출
-        String email = jwtProvider.getEmailFromToken(jwtToken);
-
-        // 사용자 조회
+    public UserResponseDto getUserInfo(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
 
-        // UserResponseDto 반환
         return new UserResponseDto(
                 user.getEmail(),
                 user.getNickname(),
@@ -72,7 +66,6 @@ public class AuthService {
         );
     }
 
-    @Transactional
     public void logout(String email) {
         // Redis에서 Access Token과 Refresh Token 삭제
         redisTemplate.delete(ACCESS_TOKEN_PREFIX + email);
@@ -86,8 +79,6 @@ public class AuthService {
         return storedAccessToken != null && storedAccessToken.equals(token);
     }
 
-
-    @Transactional
     public void changePassword(String email, String newPassword) {
 
         // 사용자 조회

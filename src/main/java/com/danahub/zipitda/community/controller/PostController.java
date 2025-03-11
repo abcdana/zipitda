@@ -7,9 +7,12 @@ import com.danahub.zipitda.community.dto.PostResponseDto;
 import com.danahub.zipitda.community.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,10 +23,18 @@ public class PostController {
 
     private final PostService postService;
 
+    @GetMapping("/upload")
+    public String showPostUploadForm() {
+        return "card-post";
+    }
+
     @PostMapping
     @Operation(summary = "게시글 등록 API", description = "새로운 게시글을 등록합니다.")
-    public CommonResponse<Long> createPost(@RequestBody PostRequestDto requestDto) {
-        return CommonResponse.success(postService.createPost(requestDto));
+    public CommonResponse<Long> createPost(
+            Authentication authentication,  // JWT 기반 인증
+            @RequestBody @Valid PostRequestDto requestDto) {
+
+        return CommonResponse.success(postService.createPost(requestDto, authentication));
     }
 
     @GetMapping("/{postId}")
