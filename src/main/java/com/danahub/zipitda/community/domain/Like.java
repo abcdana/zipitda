@@ -1,5 +1,6 @@
 package com.danahub.zipitda.community.domain;
 
+import com.danahub.zipitda.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Like {
+public class Like extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +27,4 @@ public class Like {
 
     @Column(nullable = false)
     private Long targetId; // 좋아요가 속한 대상 ID
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(); // 좋아요 누른 시간
 }

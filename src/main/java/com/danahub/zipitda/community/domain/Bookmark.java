@@ -1,5 +1,6 @@
 package com.danahub.zipitda.community.domain;
 
+import com.danahub.zipitda.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class Bookmark {
+public class Bookmark extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +31,4 @@ public class Bookmark {
 
     @Column(nullable = false)
     private Long userId; // 북마크한 사용자 ID
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt; // 생성일시
 }
