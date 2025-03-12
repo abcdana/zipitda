@@ -1,5 +1,6 @@
-package com.danahub.zipitda.product.dto;
+package com.danahub.zipitda.store.dto;
 
+import com.danahub.zipitda.store.domain.Category;
 import jakarta.validation.constraints.*;
 import java.util.List;
 
@@ -9,10 +10,10 @@ public record ProductRequestDto(
         @NotBlank(message = "상품 설명을 입력하세요.")
         String description,
         @NotBlank(message = "카테고리를 입력하세요.")
-        String category,
+        Long categoryId,
         @NotNull(message = "가격을 입력하세요.")
         @Positive Long price,
         @NotNull(message = "재고 수량을 입력하세요.")
         @PositiveOrZero Long stockQuantity,
         List<String> imageUrls
-) {}
+) { }

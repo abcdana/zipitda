@@ -52,7 +52,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/community/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/store/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/store/products/{productId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/store/products/{productId}").hasRole("ADMIN")                        .requestMatchers(HttpMethod.GET, "/api/community/posts/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().permitAll() // TODO 테스트 완료하고 filterChain 점검할 것
                 )

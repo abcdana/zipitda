@@ -105,14 +105,14 @@ public class SocialLoginService {
                     .nickname(nickname)
                     .profileImage(profileImage)
                     .isActive("ACTIVE") // 기본 활성화 상태로 설정
-                    .role("USER") // 기본 역할 설정
+                    .role("ROLE_USER") // 기본 역할 설정
                     .build();
 
             userRepository.save(user);
         }
 
         // JWT 토큰 발급
-        String accessToken = jwtProvider.generateAccessToken(user.getEmail());
+        String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getRole());
         String refreshToken = jwtProvider.generateRefreshToken(user.getEmail());
 
         return new SocialLoginResponseDto(accessToken, refreshToken, new UserResponseDto(user));
