@@ -4,6 +4,8 @@ import com.danahub.zipitda.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
@@ -20,8 +22,8 @@ public class Product extends BaseEntity {
     private Long userId;  // 등록한 사용자 ID
     private String name;  // 상품명
     private String description;  // 상품 설명
-    private Long price;  // 상품 가격
-    private Long stockQuantity;  // 재고 수량
+    private BigDecimal price;  // 상품 가격
+    private int stockQuantity;  // 재고 수량
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)

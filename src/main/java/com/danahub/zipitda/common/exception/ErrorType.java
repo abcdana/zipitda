@@ -11,6 +11,9 @@ public enum ErrorType {
     INVALID_REQUEST(40000, HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     MISSING_REQUIRED_VALUE(40001, HttpStatus.BAD_REQUEST, "필수 입력값이 누락되었습니다."),
     UNSUPPORTED_REQUEST_TYPE(40002, HttpStatus.BAD_REQUEST, "지원하지 않는 요청 형식입니다."),
+    INVALID_PRODUCT_QUANTITY(40003, HttpStatus.BAD_REQUEST, "유효하지 않은 상품 수량입니다."),
+    INVALID_ORDER_STATUS(40004, HttpStatus.BAD_REQUEST, "유효하지 않은 주문 상태 변경 요청입니다."),
+    INVALID_PAYMENT_METHOD(40005, HttpStatus.BAD_REQUEST, "지원되지 않는 결제 수단입니다."),
 
     // 401 UNAUTHORIZED - 인증 실패
     UNAUTHORIZED(40100, HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -19,20 +22,30 @@ public enum ErrorType {
     ACCOUNT_DISABLED(40103, HttpStatus.UNAUTHORIZED, "비활성화된 계정입니다."),
     INVALID_TOKEN(40104, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 
+    // 402 PAYMENT REQUIRED - 결제 오류
+    PAYMENT_FAILED(40200, HttpStatus.PAYMENT_REQUIRED, "결제에 실패하였습니다."),
+
     // 403 FORBIDDEN - 접근 제한
     ACCESS_DENIED(40300, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     ADMIN_ONLY(40301, HttpStatus.FORBIDDEN, "관리자만 접근 가능합니다."),
+    ORDER_CANCELLATION_NOT_ALLOWED(40302, HttpStatus.FORBIDDEN, "해당 주문은 취소할 수 없습니다."),
 
     // 404 NOT FOUND - 리소스 찾을 수 없음
     RESOURCE_NOT_FOUND(40400, HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
     USER_NOT_FOUND(40401, HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
     VERIFICATION_NOT_FOUND(40402, HttpStatus.NOT_FOUND, "인증 요청이 존재하지 않습니다."),
     PAYMENT_NOT_FOUND(40403, HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없습니다."),
+    PRODUCT_NOT_FOUND(40404, HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+    ORDER_NOT_FOUND(40405, HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
+    SHIPPING_NOT_FOUND(40406, HttpStatus.NOT_FOUND, "배송 정보를 찾을 수 없습니다."),
 
     // 409 CONFLICT - 리소스 충돌
     DUPLICATE_EMAIL(40900, HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     DUPLICATE_USERNAME(40901, HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
     ALREADY_VERIFIED(40902, HttpStatus.CONFLICT, "이미 인증이 완료된 요청입니다."),
+    OUT_OF_STOCK(40903, HttpStatus.CONFLICT, "상품 재고가 부족합니다."),
+    PRODUCT_ALREADY_EXISTS(40904, HttpStatus.CONFLICT, "해당 상품이 이미 존재합니다."),
+    SHIPPING_ALREADY_PROCESSED(40905, HttpStatus.CONFLICT, "배송이 이미 처리 중이거나 완료되었습니다."),
 
     // 410 GONE - 리소스 만료
     VERIFICATION_EXPIRED(41000, HttpStatus.GONE, "인증 코드가 만료되었습니다."),
@@ -41,7 +54,7 @@ public enum ErrorType {
     INVALID_EMAIL_FORMAT(42200, HttpStatus.UNPROCESSABLE_ENTITY, "유효하지 않은 이메일 형식입니다."),
     INVALID_PHONE_NUMBER(42201, HttpStatus.UNPROCESSABLE_ENTITY, "유효하지 않은 전화번호 형식입니다."),
     INVALID_VERIFICATION_CODE(42202, HttpStatus.UNPROCESSABLE_ENTITY, "인증 코드가 일치하지 않습니다."),
-    VERIFICATION_CODE_MISMATCH(42202, HttpStatus.UNPROCESSABLE_ENTITY, "인증 코드가 일치하지 않습니다."),
+    VERIFICATION_CODE_MISMATCH(42203, HttpStatus.UNPROCESSABLE_ENTITY, "인증 코드가 일치하지 않습니다."),
     VERIFICATION_NOT_COMPLETED(42205, HttpStatus.UNPROCESSABLE_ENTITY, "인증이 완료되지 않았습니다."),
 
     // 500 INTERNAL SERVER ERROR - 서버 오류
