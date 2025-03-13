@@ -44,7 +44,7 @@ public class AuthService {
         redisTemplate.delete(REFRESH_TOKEN_PREFIX + user.getEmail());
 
         // JWT 토큰 생성
-        String accessToken = jwtProvider.generateAccessToken(user.getEmail());
+        String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getRole());
         String refreshToken = jwtProvider.generateRefreshToken(user.getEmail());
 
         // Redis에 Access Token과 Refresh Token 저장

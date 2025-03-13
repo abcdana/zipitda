@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -34,9 +35,10 @@ public class JwtProvider {
         this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
     }
 
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(String email, String role) {
         String token = Jwts.builder()
                 .setSubject(email)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -75,18 +77,6 @@ public class JwtProvider {
         }
     }
 
-    /**
-     * JWT에서 이메일 추출
-     */
-    public String getEmailFromToken(String token) {
-        try {
-            String email = parseToken(token).getSubject();
-            log.info("JWT에서 이메일 추출: {}", email);
-            return email;
-        } catch (Exception e) {
-            throw new ZipitdaException(ErrorType.INVALID_TOKEN, Map.of("token", token), log::warn, e);
-        }
-    }
 
     /**
      * JWT 유효성 검사
@@ -107,9 +97,12 @@ public class JwtProvider {
      */
     public Authentication getAuthentication(String token) {
         try {
-            String email = getEmailFromToken(token);
+            Claims claims = parseToken(token);
+            String email = claims.getSubject();
+
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            log.info("인증 객체 생성 완료: {}", email);
+
+            log.info("인증 객체 생성 완료: {}, role: {}", email);
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         } catch (Exception e) {
             throw new ZipitdaException(ErrorType.INVALID_TOKEN, log::warn, e);

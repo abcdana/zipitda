@@ -1,4 +1,4 @@
-package com.danahub.zipitda.product.dto;
+package com.danahub.zipitda.store.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,7 +8,7 @@ public record ProductDetailResponseDto(
         Long userId,
         String name,
         String description,
-        String category,
+        String categoryName,
         Long price,
         Long stockQuantity,
         LocalDateTime createdAt,

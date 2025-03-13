@@ -1,15 +1,17 @@
-package com.danahub.zipitda.product.service;
+package com.danahub.zipitda.store.service;
 
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
 import com.danahub.zipitda.community.domain.TargetType;
 import com.danahub.zipitda.community.repository.ImageRepository;
 import com.danahub.zipitda.community.service.ImageService;
-import com.danahub.zipitda.product.domain.Product;
-import com.danahub.zipitda.product.dto.ProductRequestDto;
-import com.danahub.zipitda.product.dto.ProductResponseDto;
-import com.danahub.zipitda.product.dto.ProductDetailResponseDto;
-import com.danahub.zipitda.product.repository.ProductRepository;
+import com.danahub.zipitda.store.repository.CategoryRepository;
+import com.danahub.zipitda.store.domain.Category;
+import com.danahub.zipitda.store.repository.ProductRepository;
+import com.danahub.zipitda.store.domain.Product;
+import com.danahub.zipitda.store.dto.ProductDetailResponseDto;
+import com.danahub.zipitda.store.dto.ProductRequestDto;
+import com.danahub.zipitda.store.dto.ProductResponseDto;
 import com.danahub.zipitda.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ImageRepository imageRepository;
+    private final CategoryRepository categoryRepository;
     private final ImageService imageService;
     private final UserService userService;
 
@@ -31,11 +35,16 @@ public class ProductService {
     public Long createProduct(ProductRequestDto requestDto, Authentication authentication) {
         Long userId = userService.findUserIdByEmail(authentication.getName());
 
+        // categoryId로 Category 객체 조회
+        Category category = categoryRepository.findById(requestDto.categoryId())
+                .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND, Map.of("categoryId", requestDto.categoryId())));
+
+
         Product product = Product.builder()
                 .userId(userId)
                 .name(requestDto.name())
                 .description(requestDto.description())
-                .category(requestDto.category())
+                .category(category)
                 .price(requestDto.price())
                 .stockQuantity(requestDto.stockQuantity())
                 .build();
@@ -56,7 +65,7 @@ public class ProductService {
                 .map(product -> new ProductResponseDto(
                         product.getId(),
                         product.getName(),
-                        product.getCategory(),
+                        product.getCategory().getName(),
                         product.getPrice(),
                         product.getStockQuantity(),
                         product.getCreatedAt()
@@ -79,7 +88,7 @@ public class ProductService {
                 product.getUserId(),
                 product.getName(),
                 product.getDescription(),
-                product.getCategory(),
+                product.getCategory().getName(),
                 product.getPrice(),
                 product.getStockQuantity(),
                 product.getCreatedAt(),
@@ -91,11 +100,18 @@ public class ProductService {
     // 상품 수정
     public void updateProduct(Long productId, ProductRequestDto requestDto) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND,
+                                                        Map.of("productId", productId, "productName", requestDto.name())));
+
+
+        // categoryId로 Category 객체 조회
+        Category category = categoryRepository.findById(requestDto.categoryId())
+                .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND, Map.of("categoryId", requestDto.categoryId())));
+
 
         product.setName(requestDto.name());
         product.setDescription(requestDto.description());
-        product.setCategory(requestDto.category());
+        product.setCategory(category);
         product.setPrice(requestDto.price());
         product.setStockQuantity(requestDto.stockQuantity());
 
