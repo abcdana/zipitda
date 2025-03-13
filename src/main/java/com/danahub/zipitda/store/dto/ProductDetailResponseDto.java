@@ -1,5 +1,6 @@
 package com.danahub.zipitda.store.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,8 +10,8 @@ public record ProductDetailResponseDto(
         String name,
         String description,
         String categoryName,
-        Long price,
-        Long stockQuantity,
+        BigDecimal price,
+        int stockQuantity,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         List<String> imageUrls
