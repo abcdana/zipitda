@@ -94,4 +94,33 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    public String refreshAccessToken(String refreshToken) {
+        // Refresh Token 검증
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw new ZipitdaException(ErrorType.INVALID_TOKEN);
+        }
+
+        // Refresh Token에서 이메일 추출
+        String email = jwtProvider.getEmailFromToken(refreshToken);
+
+        // Redis에서 저장된 Refresh Token 가져오기
+        String storedRefreshToken = redisTemplate.opsForValue().get(REFRESH_TOKEN_PREFIX + email);
+
+        // Redis에 저장된 Refresh Token과 일치하는지 확인
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+            throw new ZipitdaException(ErrorType.INVALID_TOKEN);
+        }
+
+        // 새로운 Access Token 생성
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
+
+        String newAccessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getRole());
+
+        // 새로운 Access Token을 Redis에 저장 (기존 Access Token 무효화)
+        redisTemplate.opsForValue().set(ACCESS_TOKEN_PREFIX + email, newAccessToken, 30, TimeUnit.MINUTES);
+
+        return newAccessToken;
+    }
 }

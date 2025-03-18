@@ -58,9 +58,7 @@ public class JwtProvider {
         return token;
     }
 
-    /**
-     * JWT 파싱하여 Claims 반환
-     */
+    // JWT 파싱하여 Claims 반환
     public Claims parseToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
@@ -78,9 +76,7 @@ public class JwtProvider {
     }
 
 
-    /**
-     * JWT 유효성 검사
-     */
+    // JWT 유효성 검사
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
@@ -92,9 +88,7 @@ public class JwtProvider {
         }
     }
 
-    /**
-     * Spring Security Authentication 객체 생성
-     */
+    // Spring Security Authentication 객체 생성
     public Authentication getAuthentication(String token) {
         try {
             Claims claims = parseToken(token);
@@ -107,5 +101,15 @@ public class JwtProvider {
         } catch (Exception e) {
             throw new ZipitdaException(ErrorType.INVALID_TOKEN, log::warn, e);
         }
+    }
+
+    // accessToken으로 email 찾기
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey) // 서명에 사용할 시크릿 키
+                .parseClaimsJws(token)    // 토큰을 파싱하여 Claims 추출
+                .getBody();
+
+        return claims.getSubject();
     }
 }
