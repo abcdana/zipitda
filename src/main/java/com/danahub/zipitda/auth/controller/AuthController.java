@@ -34,18 +34,25 @@ public class AuthController {
 
     @PostMapping("/logout")
     @Operation(summary = "로그아웃 API", description = "사용자의 인증 세션을 종료하고, 서버에서 리프레시 토큰을 무효화합니다.")
-    public CommonResponse<String> logout(@RequestHeader("Authorization") String token) {
+    public void logout(@RequestHeader("Authorization") String token) {
         String jwtToken = token.replace("Bearer ", "");
         authService.logout(jwtToken); // 이제 email 대신 JWT Token을 이용해서 로그아웃 처리
-        return CommonResponse.success("로그아웃 되었습니다.");
+        CommonResponse.success("로그아웃 되었습니다.");
     }
 
     @PutMapping("/changePassword")
     @Operation(summary = "비밀번호 변경 API", description = "기존 비밀번호를 삭제하고 새 비밀번호를 설정합니다.")
-    public CommonResponse<String> changePassword(@RequestBody String newPassword) {
+    public void changePassword(@RequestBody String newPassword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName(); // 현재 로그인한 사용자 이메일 가져오기
         authService.changePassword(email, newPassword);
-        return CommonResponse.success("비밀번호가 성공적으로 변경되었습니다.");
+        CommonResponse.success("비밀번호가 성공적으로 변경되었습니다.");
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "토큰 갱신 API", description = "Refresh Token을 이용하여 새로운 Access Token을 발급합니다.")
+    public CommonResponse<String> refreshAccessToken(@RequestHeader("Authorization") String refreshToken) {
+        String newAccessToken = authService.refreshAccessToken(refreshToken.replace("Bearer ", ""));
+        return CommonResponse.success(newAccessToken);
     }
 }
