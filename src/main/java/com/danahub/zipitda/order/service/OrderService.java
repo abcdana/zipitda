@@ -51,7 +51,7 @@ public class OrderService {
         Order order = Order.builder()
                 .user(user)
                 .totalPrice(BigDecimal.ZERO)  // 총 금액은 후에 업데이트
-                .status(OrderStatus.PENDING)
+                .status(OrderStatus.CREATED)
                 .build();
         orderRepository.save(order);
 
