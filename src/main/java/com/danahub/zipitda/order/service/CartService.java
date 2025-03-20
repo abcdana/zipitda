@@ -39,6 +39,7 @@ public class CartService {
                 .user(user)
                 .product(product)
                 .quantity(requestDto.quantity())
+                .selected(true)
                 .build();
 
         return cartRepository.save(cart).getId();
@@ -55,7 +56,8 @@ public class CartService {
                         cart.getProduct().getId(),
                         cart.getProduct().getName(),
                         cart.getProduct().getPrice(),
-                        cart.getQuantity()
+                        cart.getQuantity(),
+                        cart.isSelected()
                 )).toList();
 
         return new CartListResponseDto(items);
@@ -96,5 +98,18 @@ public class CartService {
                 .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
 
         cartRepository.deleteByUserId(user.getId());
+    }
+
+    // 장바구니 선택
+    public void updateCartSelection(Long cartId, boolean selected, Authentication authentication) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND));
+
+        if (!cart.getUser().getEmail().equals(authentication.getName())) {
+            throw new ZipitdaException(ErrorType.UNAUTHORIZED);
+        }
+
+        cart.setSelected(selected);
+        cartRepository.save(cart);
     }
 }

@@ -33,16 +33,16 @@ public class CartController {
         return CommonResponse.success(cartService.getCartItems(authentication));
     }
 
-    @PutMapping("/{cartId}")
+    @PutMapping
     @Operation(summary = "장바구니 수량 수정 API", description = "장바구니에 담긴 상품의 수량을 변경합니다.")
-    public void updateCartItem(@PathVariable Long cartId, @RequestParam int quantity, Authentication authentication) {
+    public void updateCartItem(@RequestParam Long cartId, @RequestParam int quantity, Authentication authentication) {
         cartService.updateCartItem(cartId, quantity, authentication);
         CommonResponse.success();
     }
 
-    @DeleteMapping("/{cartId}")
+    @DeleteMapping
     @Operation(summary = "장바구니 상품 삭제 API", description = "장바구니에서 특정 상품을 삭제합니다.")
-    public void removeCartItem(@PathVariable Long cartId, Authentication authentication) {
+    public void removeCartItem(@RequestParam Long cartId, Authentication authentication) {
         cartService.removeCartItem(cartId, authentication);
         CommonResponse.success();
     }
@@ -51,6 +51,12 @@ public class CartController {
     @Operation(summary = "장바구니 전체 비우기 API", description = "장바구니를 비웁니다.")
     public void clearCart(Authentication authentication) {
         cartService.clearCart(authentication);
+        CommonResponse.success();
+    }
+
+    @PatchMapping("/selection")
+    public void updateCartSelection(@RequestParam Long cartId, @RequestParam boolean selected, Authentication authentication) {
+        cartService.updateCartSelection(cartId, selected, authentication);
         CommonResponse.success();
     }
 

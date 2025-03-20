@@ -7,5 +7,6 @@ public record CartResponseDto(
         Long productId,
         String productName,
         BigDecimal price,
-        int quantity
+        int quantity,
+        boolean selected
 ) {}
