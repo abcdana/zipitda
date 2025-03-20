@@ -31,7 +31,7 @@ public class Order extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status = OrderStatus.PENDING; // 주문 상태
+    private OrderStatus status = OrderStatus.CREATED; // 주문시 상태 : 주문생성 으로 시작
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
