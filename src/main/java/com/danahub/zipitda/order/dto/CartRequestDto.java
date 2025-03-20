@@ -1,4 +1,4 @@
-package com.danahub.zipitda.store.dto;
+package com.danahub.zipitda.order.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

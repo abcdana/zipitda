@@ -1,12 +1,13 @@
-package com.danahub.zipitda.store.service;
+package com.danahub.zipitda.order.service;
 
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
-import com.danahub.zipitda.store.domain.Cart;
+import com.danahub.zipitda.order.domain.Cart;
+import com.danahub.zipitda.order.dto.CartListResponseDto;
+import com.danahub.zipitda.order.repository.CartRepository;
 import com.danahub.zipitda.store.domain.Product;
-import com.danahub.zipitda.store.dto.CartRequestDto;
-import com.danahub.zipitda.store.dto.CartResponseDto;
-import com.danahub.zipitda.store.repository.CartRepository;
+import com.danahub.zipitda.order.dto.CartRequestDto;
+import com.danahub.zipitda.order.dto.CartResponseDto;
 import com.danahub.zipitda.store.repository.ProductRepository;
 import com.danahub.zipitda.user.domain.User;
 import com.danahub.zipitda.user.repository.UserRepository;
@@ -44,11 +45,11 @@ public class CartService {
     }
 
     // 장바구니 조회
-    public List<CartResponseDto> getCartItems(Authentication authentication) {
+    public CartListResponseDto getCartItems(Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
 
-        return cartRepository.findByUserId(user.getId()).stream()
+        List<CartResponseDto> items = cartRepository.findByUserId(user.getId()).stream()
                 .map(cart -> new CartResponseDto(
                         cart.getId(),
                         cart.getProduct().getId(),
@@ -56,6 +57,9 @@ public class CartService {
                         cart.getProduct().getPrice(),
                         cart.getQuantity()
                 )).toList();
+
+        return new CartListResponseDto(items);
+
     }
 
     // 장바구니 수량 수정

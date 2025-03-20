@@ -1,6 +1,6 @@
-package com.danahub.zipitda.store.repository;
+package com.danahub.zipitda.order.repository;
 
-import com.danahub.zipitda.store.domain.Cart;
+import com.danahub.zipitda.order.domain.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

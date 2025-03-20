@@ -1,9 +1,11 @@
-package com.danahub.zipitda.store.dto;
+package com.danahub.zipitda.order.dto;
+
+import java.math.BigDecimal;
 
 public record CartResponseDto(
         Long cartId,
         Long productId,
         String productName,
-        Long price,
+        BigDecimal price,
         int quantity
 ) {}
