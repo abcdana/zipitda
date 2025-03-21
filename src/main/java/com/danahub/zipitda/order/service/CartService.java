@@ -1,12 +1,13 @@
-package com.danahub.zipitda.store.service;
+package com.danahub.zipitda.order.service;
 
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
-import com.danahub.zipitda.store.domain.Cart;
+import com.danahub.zipitda.order.domain.Cart;
+import com.danahub.zipitda.order.dto.CartListResponseDto;
+import com.danahub.zipitda.order.repository.CartRepository;
 import com.danahub.zipitda.store.domain.Product;
-import com.danahub.zipitda.store.dto.CartRequestDto;
-import com.danahub.zipitda.store.dto.CartResponseDto;
-import com.danahub.zipitda.store.repository.CartRepository;
+import com.danahub.zipitda.order.dto.CartRequestDto;
+import com.danahub.zipitda.order.dto.CartResponseDto;
 import com.danahub.zipitda.store.repository.ProductRepository;
 import com.danahub.zipitda.user.domain.User;
 import com.danahub.zipitda.user.repository.UserRepository;
@@ -38,24 +39,29 @@ public class CartService {
                 .user(user)
                 .product(product)
                 .quantity(requestDto.quantity())
+                .selected(true)
                 .build();
 
         return cartRepository.save(cart).getId();
     }
 
     // 장바구니 조회
-    public List<CartResponseDto> getCartItems(Authentication authentication) {
+    public CartListResponseDto getCartItems(Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
 
-        return cartRepository.findByUserId(user.getId()).stream()
+        List<CartResponseDto> items = cartRepository.findByUserId(user.getId()).stream()
                 .map(cart -> new CartResponseDto(
                         cart.getId(),
                         cart.getProduct().getId(),
                         cart.getProduct().getName(),
                         cart.getProduct().getPrice(),
-                        cart.getQuantity()
+                        cart.getQuantity(),
+                        cart.isSelected()
                 )).toList();
+
+        return new CartListResponseDto(items);
+
     }
 
     // 장바구니 수량 수정
@@ -92,5 +98,18 @@ public class CartService {
                 .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
 
         cartRepository.deleteByUserId(user.getId());
+    }
+
+    // 장바구니 선택
+    public void updateCartSelection(Long cartId, boolean selected, Authentication authentication) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND));
+
+        if (!cart.getUser().getEmail().equals(authentication.getName())) {
+            throw new ZipitdaException(ErrorType.UNAUTHORIZED);
+        }
+
+        cart.setSelected(selected);
+        cartRepository.save(cart);
     }
 }
