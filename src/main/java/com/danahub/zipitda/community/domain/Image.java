@@ -30,6 +30,9 @@ public class Image extends BaseEntity {
     @Column(nullable = false)
     private String imageUrl; // 이미지 URL
 
+    @Column(nullable = false)
+    private Long userId;  // 등록자 ID
+
     public void updateTargetInfo(Long targetId, TargetType targetType) {
         this.targetId = targetId;
         this.targetType = targetType;
