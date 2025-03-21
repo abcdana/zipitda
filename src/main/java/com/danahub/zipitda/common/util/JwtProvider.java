@@ -2,6 +2,7 @@ package com.danahub.zipitda.common.util;
 
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
+import com.danahub.zipitda.common.security.CustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -96,7 +97,6 @@ public class JwtProvider {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-            log.info("인증 객체 생성 완료: {}, role: {}", email);
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         } catch (Exception e) {
             throw new ZipitdaException(ErrorType.INVALID_TOKEN, log::warn, e);
