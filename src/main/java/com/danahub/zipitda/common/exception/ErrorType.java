@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 /**
  * 공통 에러 코드 정의
  */
+
 public enum ErrorType {
 
     // 400 BAD REQUEST - 클라이언트 요청 오류
@@ -38,6 +39,8 @@ public enum ErrorType {
     PRODUCT_NOT_FOUND(40404, HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
     ORDER_NOT_FOUND(40405, HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
     SHIPPING_NOT_FOUND(40406, HttpStatus.NOT_FOUND, "배송 정보를 찾을 수 없습니다."),
+    CART_EMPTY(40407, HttpStatus.NOT_FOUND, "장바구니가 비었습니다."),
+    IMAGE_NOT_FOUND(40408, HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),
 
     // 409 CONFLICT - 리소스 충돌
     DUPLICATE_EMAIL(40900, HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
