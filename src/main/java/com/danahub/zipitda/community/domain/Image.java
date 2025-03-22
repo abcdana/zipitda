@@ -25,6 +25,7 @@ public class Image extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private TargetType targetType; // POST / PRODUCT / REVIEW 등
 
+    @Column(name = "targetId")
     private Long targetId; // 대상 ID
 
     @Column(nullable = false)
@@ -32,6 +33,9 @@ public class Image extends BaseEntity {
 
     @Column(nullable = false)
     private Long userId;  // 등록자 ID
+
+    @Column(name = "thumbnail_yn", nullable = false)
+    private boolean thumbnailYn;
 
     public void updateTargetInfo(Long targetId, TargetType targetType) {
         this.targetId = targetId;

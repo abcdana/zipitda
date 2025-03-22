@@ -1,6 +1,7 @@
 package com.danahub.zipitda.community.repository;
 
 import com.danahub.zipitda.community.domain.Image;
+import com.danahub.zipitda.community.domain.TargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -16,5 +17,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     // url 기준으로 image찾기
     Optional<Image> findByImageUrl(String imageUrl);
-
+    Optional<Image> findFirstByTargetTypeAndTargetIdAndThumbnailYnTrue(TargetType targetType, Long targetId);
 }
