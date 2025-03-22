@@ -23,13 +23,13 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final RedissonClient redissonClient;
     private final ProductRepository productRepository;
-
     @Transactional
     public void processPaymentCallback(PaymentCallbackRequestDto dto) {
         Order order = orderRepository.findByOrderNumber(dto.orderNumber())
                 .orElseThrow(() -> new ZipitdaException(ErrorType.ORDER_NOT_FOUND));
 
-        // 분산락 획득 및 재고 차감
+        Payment payment = order.getPayment();
+
         for (OrderItem item : order.getOrderItems()) {
             Long productId = item.getProduct().getId();
             int quantity = item.getQuantity();
@@ -38,31 +38,46 @@ public class PaymentService {
             try {
                 if (lock.tryLock(5, 3, TimeUnit.SECONDS)) {
                     Product product = productRepository.findById(productId)
-                            .orElseThrow(() -> new ZipitdaException(ErrorType.PRODUCT_NOT_FOUND));
+                            .orElseThrow(() -> {
+                                failPayment(payment, dto.transactionId(), "상품 정보 없음");
+                                return new ZipitdaException(ErrorType.PRODUCT_NOT_FOUND);
+                            });
 
                     if (product.getStockQuantity() < quantity) {
+                        failPayment(payment, dto.transactionId(), "재고 부족");
                         throw new ZipitdaException(ErrorType.OUT_OF_STOCK);
                     }
 
                     product.setStockQuantity(product.getStockQuantity() - quantity);
                     productRepository.save(product);
                 } else {
+                    failPayment(payment, dto.transactionId(), "락 획득 실패");
                     throw new ZipitdaException(ErrorType.LOCK_FAILED);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                failPayment(payment, dto.transactionId(), "락 인터럽트 발생");
                 throw new ZipitdaException(ErrorType.LOCK_FAILED);
             } finally {
-                lock.unlock();
+                if (lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                }
             }
         }
 
-        // 결제 성공 상태 업데이트
-        Payment payment = order.getPayment();
+        // 재고 차감 성공 → 결제 성공 처리
         payment.setTransactionId(dto.transactionId());
         payment.setStatus(PaymentStatus.COMPLETED);
         payment.setPaidAt(LocalDateTime.now());
 
         order.setStatus(OrderStatus.CONFIRMED);
+    }
+
+    // ️결제 실패 처리 메서드
+    private void failPayment(Payment payment, String transactionId, String reason) {
+        payment.setTransactionId(transactionId);
+        payment.setStatus(PaymentStatus.FAILED);
+        payment.setFailedReason(reason);
+        payment.setPaidAt(LocalDateTime.now());
     }
 }
