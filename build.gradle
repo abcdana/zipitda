@@ -78,6 +78,8 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
 	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.17.0'
 
+	// 분산락 적용 redisson
+	implementation 'org.redisson:redisson-spring-boot-starter:3.24.0'
 
 }
 

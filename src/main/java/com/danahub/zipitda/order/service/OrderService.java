@@ -8,10 +8,7 @@ import com.danahub.zipitda.community.domain.Image;
 import com.danahub.zipitda.community.domain.TargetType;
 import com.danahub.zipitda.community.repository.ImageRepository;
 import com.danahub.zipitda.order.domain.*;
-import com.danahub.zipitda.order.dto.DirectOrderRequestDto;
-import com.danahub.zipitda.order.dto.OrderItemRequestDto;
-import com.danahub.zipitda.order.dto.PaymentRequestDto;
-import com.danahub.zipitda.order.dto.ShippingRequestDto;
+import com.danahub.zipitda.order.dto.*;
 import com.danahub.zipitda.order.repository.*;
 import com.danahub.zipitda.store.domain.Product;
 import com.danahub.zipitda.store.repository.ProductRepository;
@@ -45,7 +42,7 @@ public class OrderService {
     private final ImageRepository imageRepository;
     private final OrderNumberGenerator orderNumberGenerator;
     @Transactional
-    public void createOrderFromCart(CustomUserDetails userDetails, ShippingRequestDto shippingDto, PaymentRequestDto paymentDto) {
+    public PaymentRequestDtoForPG createOrderFromCart(CustomUserDetails userDetails, ShippingRequestDto shippingDto, PaymentRequestDto paymentDto) {
         Long userId = userDetails.getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
@@ -130,11 +127,18 @@ public class OrderService {
 
         log.info("장바구니 주문 완료 - OrderNumber: {}, UserId: {}", orderNumber, userId);
 
-        // TODO: PG사 결제 연동 정보 반환 (프론트로 PG 요청 정보 전달 필요)
+        // PG 요청 정보 구성
+        return new PaymentRequestDtoForPG(
+                order.getOrderNumber(),
+                totalPrice,
+                user.getEmail(),
+                "총 " + selectedCarts.size() + "건",
+                paymentDto.paymentGateway().name()
+        );
     }
 
     @Transactional
-    public void createDirectOrder(CustomUserDetails userDetails, DirectOrderRequestDto requestDto) {
+    public PaymentRequestDtoForPG createDirectOrder(CustomUserDetails userDetails, DirectOrderRequestDto requestDto) {
         Long userId = userDetails.getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
@@ -207,6 +211,12 @@ public class OrderService {
 
         log.info("단일 상품 주문 생성 완료 - OrderNumber: {}, UserId: {}, ProductId: {}", order.getOrderNumber(), userId, product.getId());
 
-        // PG 결제 연동 필요 → 프론트로 PG 요청 정보 전달 (생략)
+        return new PaymentRequestDtoForPG(
+                order.getOrderNumber(),
+                totalPrice,
+                user.getEmail(),
+                "총 1 건",
+                payment.getPaymentGateway().name()
+        );
     }
 }

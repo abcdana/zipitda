@@ -4,6 +4,7 @@ import com.danahub.zipitda.common.dto.CommonResponse;
 import com.danahub.zipitda.common.security.CustomUserDetails;
 import com.danahub.zipitda.order.dto.DirectOrderRequestDto;
 import com.danahub.zipitda.order.dto.OrderRequestDto;
+import com.danahub.zipitda.order.dto.PaymentRequestDtoForPG;
 import com.danahub.zipitda.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,19 +30,17 @@ public class OrderController {
     // 장바구니 주문
     @PostMapping("/from-cart")
     @Operation(summary = "장바구니 주문", description = "장바구니 선택 상품을 주문합니다.")
-    public void createCartOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                @RequestBody @Valid OrderRequestDto requestDto) {
-        orderService.createOrderFromCart(userDetails, requestDto.shippingInfo(), requestDto.paymentInfo());
-        CommonResponse.success();
+    public CommonResponse<PaymentRequestDtoForPG> createCartOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                  @RequestBody @Valid OrderRequestDto requestDto) {
+        return CommonResponse.success(orderService.createOrderFromCart(userDetails, requestDto.shippingInfo(), requestDto.paymentInfo()));
     }
 
     // 단일 상품 주문
     @PostMapping("/direct")
     @Operation(summary = "단일 상품 주문", description = "상품 상세에서 바로 주문합니다.")
-    public void createDirectOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public CommonResponse<PaymentRequestDtoForPG> createDirectOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
                                   @RequestBody @Valid DirectOrderRequestDto requestDto) {
-        orderService.createDirectOrder(userDetails, requestDto);
-        CommonResponse.success();
+        return CommonResponse.success(orderService.createDirectOrder(userDetails, requestDto));
     }
 
 }
