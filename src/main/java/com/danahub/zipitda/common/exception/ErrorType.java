@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 /**
  * 공통 에러 코드 정의
  */
+
 public enum ErrorType {
 
     // 400 BAD REQUEST - 클라이언트 요청 오류
@@ -38,6 +39,8 @@ public enum ErrorType {
     PRODUCT_NOT_FOUND(40404, HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
     ORDER_NOT_FOUND(40405, HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
     SHIPPING_NOT_FOUND(40406, HttpStatus.NOT_FOUND, "배송 정보를 찾을 수 없습니다."),
+    CART_EMPTY(40407, HttpStatus.NOT_FOUND, "장바구니가 비었습니다."),
+    IMAGE_NOT_FOUND(40408, HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),
 
     // 409 CONFLICT - 리소스 충돌
     DUPLICATE_EMAIL(40900, HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
@@ -46,6 +49,7 @@ public enum ErrorType {
     OUT_OF_STOCK(40903, HttpStatus.CONFLICT, "상품 재고가 부족합니다."),
     PRODUCT_ALREADY_EXISTS(40904, HttpStatus.CONFLICT, "해당 상품이 이미 존재합니다."),
     SHIPPING_ALREADY_PROCESSED(40905, HttpStatus.CONFLICT, "배송이 이미 처리 중이거나 완료되었습니다."),
+    LOCK_FAILED(40906, HttpStatus.CONFLICT, "재고 처리 중 잠금에 실패했습니다. 다시 시도해주세요."),
 
     // 410 GONE - 리소스 만료
     VERIFICATION_EXPIRED(41000, HttpStatus.GONE, "인증 코드가 만료되었습니다."),
@@ -56,6 +60,7 @@ public enum ErrorType {
     INVALID_VERIFICATION_CODE(42202, HttpStatus.UNPROCESSABLE_ENTITY, "인증 코드가 일치하지 않습니다."),
     VERIFICATION_CODE_MISMATCH(42203, HttpStatus.UNPROCESSABLE_ENTITY, "인증 코드가 일치하지 않습니다."),
     VERIFICATION_NOT_COMPLETED(42205, HttpStatus.UNPROCESSABLE_ENTITY, "인증이 완료되지 않았습니다."),
+    INVALID_ORDER_STATUS_TRANSITION(42206, HttpStatus.UNPROCESSABLE_ENTITY, "잘못된 주문 상태 전환입니다."),
 
     // 500 INTERNAL SERVER ERROR - 서버 오류
     INTERNAL_SERVER_ERROR(50000, HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다."),

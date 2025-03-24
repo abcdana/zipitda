@@ -1,8 +1,10 @@
-package com.danahub.zipitda.store.domain;
+package com.danahub.zipitda.order.domain;
 
 import com.danahub.zipitda.common.domain.BaseEntity;
+import com.danahub.zipitda.store.domain.Product;
 import com.danahub.zipitda.user.domain.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -28,4 +30,7 @@ public class Cart extends BaseEntity {
 
     @Column(nullable = false)
     private int quantity;
+
+    @Column(nullable = false)
+    private boolean selected;
 }

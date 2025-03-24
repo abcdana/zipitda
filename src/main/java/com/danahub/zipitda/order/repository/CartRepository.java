@@ -1,6 +1,6 @@
-package com.danahub.zipitda.store.repository;
+package com.danahub.zipitda.order.repository;
 
-import com.danahub.zipitda.store.domain.Cart;
+import com.danahub.zipitda.order.domain.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -8,4 +8,6 @@ import java.util.List;
 public interface CartRepository extends JpaRepository<Cart, Long> {
     List<Cart> findByUserId(Long userId);
     void deleteByUserId(Long userId);
+
+    List<Cart> findByUserIdAndSelectedTrue(Long userId);
 }

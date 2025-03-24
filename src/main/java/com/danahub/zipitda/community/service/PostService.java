@@ -3,6 +3,7 @@ package com.danahub.zipitda.community.service;
 import com.danahub.zipitda.common.aop.PostAuthorizationCheck;
 import com.danahub.zipitda.common.exception.ErrorType;
 import com.danahub.zipitda.common.exception.ZipitdaException;
+import com.danahub.zipitda.common.security.CustomUserDetails;
 import com.danahub.zipitda.community.domain.Post;
 import com.danahub.zipitda.community.domain.TargetType;
 import com.danahub.zipitda.community.domain.Image;
@@ -14,17 +15,20 @@ import com.danahub.zipitda.community.repository.PostRepository;
 import com.danahub.zipitda.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
 
     private final PostRepository postRepository;
@@ -105,29 +109,29 @@ public class PostService {
     }
 
     // 게시글 수정
-    @PostAuthorizationCheck
-    public void updatePost(PostRequestDto requestDto) {
+    public void updatePost(PostRequestDto requestDto, CustomUserDetails user) {
         Post post = postRepository.findById(requestDto.postId())
                 .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND));
+        if (!post.getUserId().equals(user.getUserId())) {
+            throw new ZipitdaException(ErrorType.ACCESS_DENIED);
+        }
 
         post.setTitle(requestDto.title());
         post.setContent(requestDto.content());
+        log.info("게시글 수정 완료 - postId: {}, userId: {}", post.getId(), user.getUserId());
+
     }
 
     // 게시글 삭제
-    @PostAuthorizationCheck
-    public void deletePost(PostRequestDto requestDto) {
-        postRepository.deleteById(requestDto.postId());
-    }
+    public void deletePost(Long postId, CustomUserDetails user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND));
 
-    /*
-    // 게시글 검증
-    private void validatePostRequest(PostRequestDto requestDto) {
-        if (requestDto.title() == null || requestDto.title().isBlank()) {
-            throw new ZipitdaException(ErrorType.MISSING_REQUIRED_VALUE);
+        if (!post.getUserId().equals(user.getUserId())) {
+            throw new ZipitdaException(ErrorType.ACCESS_DENIED);
         }
-        if (requestDto.content() == null || requestDto.content().isBlank()) {
-            throw new ZipitdaException(ErrorType.MISSING_REQUIRED_VALUE);
-        }
-    }*/
+
+        postRepository.delete(post);
+        log.info("게시글 삭제 완료 - postId: {}, userId: {}", postId, user.getUserId());
+    }
 }

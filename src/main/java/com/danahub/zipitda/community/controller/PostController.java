@@ -1,6 +1,7 @@
 package com.danahub.zipitda.community.controller;
 
 import com.danahub.zipitda.common.dto.CommonResponse;
+import com.danahub.zipitda.common.security.CustomUserDetails;
 import com.danahub.zipitda.community.dto.PostDetailResponseDto;
 import com.danahub.zipitda.community.dto.PostRequestDto;
 import com.danahub.zipitda.community.dto.PostResponseDto;
@@ -12,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -53,15 +54,17 @@ public class PostController {
 
     @PutMapping
     @Operation(summary = "게시글 수정 API", description = "게시글을 수정합니다.")
-    public CommonResponse<Void> updatePost(@RequestBody PostRequestDto requestDto) {
-        postService.updatePost(requestDto);
-        return CommonResponse.success();
+    public void updatePost(@RequestBody PostRequestDto requestDto,
+                           @AuthenticationPrincipal CustomUserDetails user) {
+        postService.updatePost(requestDto, user);
+        CommonResponse.success();
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{postId}")
     @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
-    public CommonResponse<Void> deletePost(@RequestBody PostRequestDto requestDto) {
-        postService.deletePost(requestDto);
-        return CommonResponse.success();
+    public void deletePost(@PathVariable Long postId,
+                           @AuthenticationPrincipal CustomUserDetails user) {
+        postService.deletePost(postId, user);
+        CommonResponse.success();
     }
 }

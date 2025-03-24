@@ -58,15 +58,31 @@ public class StorageService {
         return encryptUrl("/uploads/" + safeFileName);
     }
 
-    // 파일 삭제
-    public void deleteFile(String fileUrl) {
-        String filePath = UPLOAD_DIR + fileUrl.replace("/uploads/", "");
+    // 파일 삭제 - Base64 복호화 후 실제 경로로 파일 삭제
+    public void deleteFile(String encryptedUrl) {
+        String decodedUrl = decryptUrl(encryptedUrl);
+        String filePath = Paths.get(UPLOAD_DIR, decodedUrl.replace("/uploads/", "")).toString();
+
         File file = new File(filePath);
+
+        log.info("파일 삭제 시도: {}", filePath);
 
         if (file.exists() && file.delete()) {
             log.info("파일 삭제 완료: {}", filePath);
         } else {
+            log.warn("파일 삭제 실패 또는 존재하지 않음: {}", filePath);
             throw new ZipitdaException(ErrorType.RESOURCE_NOT_FOUND, Map.of("filePath", filePath));
+        }
+    }
+
+    // 파일 URL Base64 복호화
+    private String decryptUrl(String encryptedUrl) {
+        try {
+            byte[] decodedBytes = Base64.getDecoder().decode(encryptedUrl);
+            return new String(decodedBytes, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            log.warn("URL 복호화 실패: {}", encryptedUrl);
+            throw new ZipitdaException(ErrorType.INVALID_REQUEST, Map.of("encryptedUrl", encryptedUrl), log::warn, e);
         }
     }
 
