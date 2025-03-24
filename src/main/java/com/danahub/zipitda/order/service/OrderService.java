@@ -91,7 +91,7 @@ public class OrderService {
                     .thumbnailUrl(thumbnailImage.getImageUrl())
                     .build();
 
-            order.addOrderItem(orderItem);  // ✅ 편의 메서드로 양방향 세팅
+            order.addOrderItem(orderItem);  // 편의 메서드로 양방향 세팅
 
             // 금액 누적
             totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
