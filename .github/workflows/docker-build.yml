@@ -2,7 +2,7 @@ name: CI - Build and Push Docker Image
 
 on:
   push:
-    branches: [ develop ]  # main 브랜치에 push될 때만 실행
+    branches: [ develop ]  # develop 브랜치에 push될 때만 실행
 
 jobs:
   build:
