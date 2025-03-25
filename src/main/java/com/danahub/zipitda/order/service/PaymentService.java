@@ -90,4 +90,3 @@ public class PaymentService {
         throw new ZipitdaException(errorType);
     }
 }
-정
