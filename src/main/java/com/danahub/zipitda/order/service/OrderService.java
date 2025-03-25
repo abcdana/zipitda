@@ -33,7 +33,6 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final ShippingRepository shippingRepository;
     private final PaymentRepository paymentRepository;
     private final ProductRepository productRepository;
@@ -41,175 +40,79 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final ImageRepository imageRepository;
     private final OrderNumberGenerator orderNumberGenerator;
+
+    // 장바구니 주문 생성
     @Transactional
-    public PaymentRequestDtoForPG createOrderFromCart(CustomUserDetails userDetails, ShippingRequestDto shippingDto, PaymentRequestDto paymentDto) {
-        Long userId = userDetails.getUserId();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
+    public PaymentRequestDtoForPG createOrderFromCart(
+            CustomUserDetails userDetails,
+            ShippingRequestDto shippingDto,
+            PaymentRequestDto paymentDto
+    ) {
+        // 1) 사용자, 장바구니 조회
+        User user = findUserOrThrow(userDetails.getUserId());
+        List<Cart> selectedCarts = getSelectedCartsOrThrow(user.getId());
 
-        // 선택된 장바구니 조회
-        List<Cart> selectedCarts = cartRepository.findByUserIdAndSelectedTrue(userId);
-        if (selectedCarts.isEmpty()) {
-            throw new ZipitdaException(ErrorType.CART_EMPTY);
-        }
-
-        BigDecimal totalPrice = BigDecimal.ZERO;
-
-        // 주문번호 생성
+        // 2) Order 엔티티 생성 후 저장
         String orderNumber = orderNumberGenerator.generate("ORD");
+        Order order = createEmptyOrder(user, orderNumber);
 
-        // 주문 먼저 생성 (OrderItem 나중에 연결)
-        Order order = Order.builder()
-                .user(user)
-                .orderNumber(orderNumber)
-                .status(OrderStatus.CREATED)
-                .totalPrice(BigDecimal.ZERO) // 임시값
-                .build();
-        orderRepository.save(order);
+        // 3) 장바구니 → OrderItem 변환, 재고 확인, 금액 계산
+        BigDecimal totalPrice = addOrderItemsFromCart(order, selectedCarts);
 
-        // 장바구니 -> OrderItem으로 변환 후 편의 메서드로 연결
-        for (Cart cart : selectedCarts) {
-            Product product = cart.getProduct();
-            int quantity = cart.getQuantity();
-
-            // 재고 확인
-            if (product.getStockQuantity() < quantity) {
-                throw new ZipitdaException(ErrorType.OUT_OF_STOCK, Map.of("productId", product.getId()));
-            }
-
-            // 썸네일 이미지 조회
-            Image thumbnailImage = imageRepository
-                    .findFirstByTargetTypeAndTargetIdAndThumbnailYnTrue(TargetType.PRODUCT, product.getId())
-                    .orElseThrow(() -> new ZipitdaException(ErrorType.IMAGE_NOT_FOUND));
-
-            // OrderItem 생성
-            OrderItem orderItem = OrderItem.builder()
-                    .product(product)
-                    .quantity(quantity)
-                    .price(product.getPrice())
-                    .productNameSnapshot(product.getName())
-                    .thumbnailUrl(thumbnailImage.getImageUrl())
-                    .build();
-
-            order.addOrderItem(orderItem);  // 편의 메서드로 양방향 세팅
-
-            // 금액 누적
-            totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
-        }
-
-        // 총 금액 업데이트
+        // 4) 주문 금액 업데이트
         order.setTotalPrice(totalPrice);
         orderRepository.save(order);
 
-        // 배송 정보 저장
-        Shipping shipping = Shipping.builder()
-                .order(order)
-                .recipientName(shippingDto.recipientName())
-                .address(shippingDto.address())
-                .phone(shippingDto.phone())
-                .status(ShippingStatus.PENDING)
-                .build();
-        shippingRepository.save(shipping);
+        // 5) 배송 정보 생성
+        createShipping(order, shippingDto);
 
-        // 결제 정보 저장 (PG 결제 호출 전)
-        Payment payment = Payment.builder()
-                .order(order)
-                .paymentMethod(paymentDto.paymentMethod())
-                .paymentGateway(paymentDto.paymentGateway())
-                .transactionId("TEMP-" + UUID.randomUUID())  // TODO. 임시 트랜잭션 ID 고칠 것
-                .status(PaymentStatus.PENDING)
-                .amount(totalPrice)
-                .build();
-        paymentRepository.save(payment);
+        // 6) 결제 정보 생성
+        Payment payment = createPayment(order, paymentDto, totalPrice);
 
-        // 장바구니 비우기
+        // 7) 장바구니 비우기
         cartRepository.deleteAll(selectedCarts);
 
-        log.info("장바구니 주문 완료 - OrderNumber: {}, UserId: {}", orderNumber, userId);
+        log.info("장바구니 주문 완료 - OrderNumber: {}, UserId: {}", orderNumber, user.getId());
 
-        // PG 요청 정보 구성
+        // PG 요청 정보 리턴
         return new PaymentRequestDtoForPG(
                 order.getOrderNumber(),
                 totalPrice,
                 user.getEmail(),
                 "총 " + selectedCarts.size() + "건",
-                paymentDto.paymentGateway().name()
+                payment.getPaymentGateway().name()
         );
     }
 
+    // 단일 상품 주문 (직접 구매)
     @Transactional
-    public PaymentRequestDtoForPG createDirectOrder(CustomUserDetails userDetails, DirectOrderRequestDto requestDto) {
-        Long userId = userDetails.getUserId();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
+    public PaymentRequestDtoForPG createDirectOrder(
+            CustomUserDetails userDetails,
+            DirectOrderRequestDto requestDto
+    ) {
+        // 1) 사용자, 상품 조회
+        User user = findUserOrThrow(userDetails.getUserId());
+        Product product = findProductOrThrow(requestDto.productId());
 
-        Product product = productRepository.findById(requestDto.productId())
-                .orElseThrow(() -> new ZipitdaException(ErrorType.PRODUCT_NOT_FOUND));
-
+        // 2) 재고 확인
         int quantity = requestDto.quantity();
+        checkStockOrThrow(product, quantity);
 
-        // 재고 확인
-        if (product.getStockQuantity() < quantity) {
-            throw new ZipitdaException(ErrorType.OUT_OF_STOCK, Map.of("productId", product.getId()));
-        }
-
-        // 썸네일 이미지 조회
-        Image thumbnailImage = imageRepository
-                .findFirstByTargetTypeAndTargetIdAndThumbnailYnTrue(TargetType.PRODUCT, product.getId())
-                .orElseThrow(() -> new ZipitdaException(ErrorType.IMAGE_NOT_FOUND));
-
-        // 주문번호 생성
+        // 3) 주문 생성
         String orderNumber = orderNumberGenerator.generate("ORD");
+        Order order = createEmptyOrder(user, orderNumber);
 
-        // 주문 생성 (먼저 생성해서 OrderItem과 연결해야 함)
-        Order order = Order.builder()
-                .user(user)
-                .orderNumber(orderNumber)
-                .status(OrderStatus.CREATED)
-                .totalPrice(BigDecimal.ZERO) // 임시 설정, 아래에서 업데이트
-                .build();
+        // 4) OrderItem 생성
+        BigDecimal totalPrice = addSingleOrderItem(order, product, quantity);
 
-        // OrderItem 생성 및 연관관계 세팅
-        OrderItem orderItem = OrderItem.builder()
-                .product(product)
-                .quantity(quantity)
-                .price(product.getPrice())
-                .productNameSnapshot(product.getName())
-                .thumbnailUrl(thumbnailImage.getImageUrl())
-                .build();
+        // 5) 배송 정보 생성
+        createShipping(order, requestDto.shippingInfo());
 
-        // 양방향 연관관계 세팅
-        order.addOrderItem(orderItem);
+        // 6) 결제 정보 생성
+        Payment payment = createPayment(order, requestDto.paymentInfo(), totalPrice);
 
-        // 총 금액 계산
-        BigDecimal totalPrice = product.getPrice().multiply(BigDecimal.valueOf(quantity));
-        order.setTotalPrice(totalPrice);
-
-        // 주문 저장
-        orderRepository.save(order);
-
-        // 배송 정보 저장
-        Shipping shipping = Shipping.builder()
-                .order(order)
-                .recipientName(requestDto.shippingInfo().recipientName())
-                .address(requestDto.shippingInfo().address())
-                .phone(requestDto.shippingInfo().phone())
-                .status(ShippingStatus.PENDING)
-                .build();
-        shippingRepository.save(shipping);
-
-        // 결제 정보 저장 (임시 트랜잭션 ID 사용)
-        Payment payment = Payment.builder()
-                .order(order)
-                .paymentMethod(requestDto.paymentInfo().paymentMethod())
-                .paymentGateway(requestDto.paymentInfo().paymentGateway())
-                .transactionId("TEMP-" + UUID.randomUUID()) // 🔥 임시 트랜잭션 ID
-                .status(PaymentStatus.PENDING)
-                .amount(totalPrice)
-                .build();
-        paymentRepository.save(payment);
-
-        log.info("단일 상품 주문 생성 완료 - OrderNumber: {}, UserId: {}, ProductId: {}", order.getOrderNumber(), userId, product.getId());
+        log.info("단일 상품 주문 완료 - OrderNumber: {}, UserId: {}, ProductId: {}",
+                orderNumber, user.getId(), product.getId());
 
         return new PaymentRequestDtoForPG(
                 order.getOrderNumber(),
@@ -219,4 +122,133 @@ public class OrderService {
                 payment.getPaymentGateway().name()
         );
     }
+
+    //------------------------------------------------------------------------------
+    // 세부 로직 메서드
+    //------------------------------------------------------------------------------
+
+    private User findUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.USER_NOT_FOUND));
+    }
+
+    private List<Cart> getSelectedCartsOrThrow(Long userId) {
+        List<Cart> carts = cartRepository.findByUserIdAndSelectedTrue(userId);
+        if (carts.isEmpty()) {
+            throw new ZipitdaException(ErrorType.CART_EMPTY);
+        }
+        return carts;
+    }
+
+    private Product findProductOrThrow(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.PRODUCT_NOT_FOUND));
+    }
+
+    private void checkStockOrThrow(Product product, int quantity) {
+        if (product.getStockQuantity() < quantity) {
+            throw new ZipitdaException(ErrorType.OUT_OF_STOCK, Map.of("productId", product.getId()));
+        }
+    }
+
+    // 주문 엔티티 생성 (status=CREATED, 임시 totalPrice=0)
+    private Order createEmptyOrder(User user, String orderNumber) {
+        Order order = Order.builder()
+                .user(user)
+                .orderNumber(orderNumber)
+                .status(OrderStatus.CREATED)
+                .totalPrice(BigDecimal.ZERO) // 임시
+                .build();
+        orderRepository.save(order);
+        return order;
+    }
+
+    /**
+     * 장바구니 -> OrderItem
+     * - 재고 확인
+     * - 썸네일 조회
+     * - OrderItem 생성, order에 add
+     * - 총 금액 계산
+     */
+    private BigDecimal addOrderItemsFromCart(Order order, List<Cart> selectedCarts) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for (Cart cart : selectedCarts) {
+            Product product = cart.getProduct();
+            int quantity = cart.getQuantity();
+
+            checkStockOrThrow(product, quantity);
+
+            Image thumbnail = findThumbnailOrThrow(product.getId());
+
+            // OrderItem 생성
+            OrderItem orderItem = OrderItem.builder()
+                    .product(product)
+                    .quantity(quantity)
+                    .price(product.getPrice())
+                    .productNameSnapshot(product.getName())
+                    .thumbnailUrl(thumbnail.getImageUrl())
+                    .build();
+
+            order.addOrderItem(orderItem);
+
+            // 금액 합산
+            totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+        }
+        return totalPrice;
+    }
+
+    // 단일 상품 주문 - OrderItem 생성
+    private BigDecimal addSingleOrderItem(Order order, Product product, int quantity) {
+        Image thumbnail = findThumbnailOrThrow(product.getId());
+
+        OrderItem orderItem = OrderItem.builder()
+                .product(product)
+                .quantity(quantity)
+                .price(product.getPrice())
+                .productNameSnapshot(product.getName())
+                .thumbnailUrl(thumbnail.getImageUrl())
+                .build();
+
+        order.addOrderItem(orderItem);
+
+        BigDecimal totalPrice = product.getPrice().multiply(BigDecimal.valueOf(quantity));
+        order.setTotalPrice(totalPrice);
+        orderRepository.save(order);
+
+        return totalPrice;
+    }
+
+    // 이미지 조회
+    private Image findThumbnailOrThrow(Long productId) {
+        return imageRepository
+                .findFirstByTargetTypeAndTargetIdAndThumbnailYnTrue(TargetType.PRODUCT, productId)
+                .orElseThrow(() -> new ZipitdaException(ErrorType.IMAGE_NOT_FOUND));
+    }
+
+    // 배송 정보 생성
+    private void createShipping(Order order, ShippingRequestDto shippingDto) {
+        Shipping shipping = Shipping.builder()
+                .order(order)
+                .recipientName(shippingDto.recipientName())
+                .address(shippingDto.address())
+                .phone(shippingDto.phone())
+                .status(ShippingStatus.PENDING)
+                .build();
+        shippingRepository.save(shipping);
+    }
+
+    // 결제 정보 생성
+    private Payment createPayment(Order order, PaymentRequestDto paymentDto, BigDecimal totalPrice) {
+        Payment payment = Payment.builder()
+                .order(order)
+                .paymentMethod(paymentDto.paymentMethod())
+                .paymentGateway(paymentDto.paymentGateway())
+                .transactionId("TEMP-" + UUID.randomUUID())  // 임시 ID
+                .status(PaymentStatus.PENDING)
+                .amount(totalPrice)
+                .build();
+        paymentRepository.save(payment);
+        return payment;
+    }
+
 }
